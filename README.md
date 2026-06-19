@@ -1,10 +1,11 @@
 <h1>📱 todus-lib</h1>
 
 <p align="center">
-  <a href="https://pypi.org/project/todus-lib/"><img src="https://img.shields.io/pypi/v/todus-lib.svg" alt="PyPI"></a>
-  <a href="https://pypi.org/project/todus-lib/"><img src="https://img.shields.io/pypi/pyversions/todus-lib.svg" alt="Python"></a>
-  <a href="https://github.com/ElJoker63/toDus-API/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ElJoker63/toDus-API.svg" alt="License"></a>
-  <a href="https://github.com/ElJoker63/toDus-API/actions"><img src="https://github.com/ElJoker63/toDus-API/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://pypi.org/project/todus-lib/"><img src="https://img.shields.io/pypi/v/todus-lib" alt="PyPI"></a>
+  <a href="https://pypi.org/project/todus-lib/"><img src="https://img.shields.io/pypi/pyversions/todus-lib" alt="Python"></a>
+  <a href="https://github.com/ElJoker63/toDus-API/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/ElJoker63/toDus-API/ci.yml?branch=main&label=tests" alt="Tests"></a>
+  <a href="https://github.com/ElJoker63/toDus-API/actions/workflows/pypi-publish.yml"><img src="https://img.shields.io/github/actions/workflow/status/ElJoker63/toDus-API/pypi-publish.yml?branch=main&label=publish" alt="Publish"></a>
+  <a href="https://github.com/ElJoker63/toDus-API/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ElJoker63/toDus-API" alt="License"></a>
 </p>
 
 <p><strong>Cliente Python para ToDus</strong> — la plataforma de mensajería instantánea cubana. Soporta chat privado, grupos MUC Light, archivos, imágenes, videos, stickers, botones interactivos y más.</p>
