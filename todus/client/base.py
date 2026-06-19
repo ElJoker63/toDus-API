@@ -19,21 +19,62 @@ class ToDusClientBase:
         self,
         version_name: str = constants.AUTH_VERSION_NAME,
         version_code: str = constants.AUTH_VERSION_CODE,
+        proxy: str | None = None,
     ) -> None:
         self.version_name = version_name
         self.version_code = version_code
+        self.proxy = proxy
         self.session = requests.Session()
         self.session.headers.update({"Accept-Encoding": "gzip"})
+        if self.proxy:
+            self.session.proxies = {
+                "http": self.proxy,
+                "https": self.proxy,
+            }
         self._xml_parser = parser.IncrementalParser()
+
+    def _parse_proxy(self, proxy_url: str):
+        from urllib.parse import urlparse
+        import socks
+
+        parsed = urlparse(proxy_url)
+        scheme = parsed.scheme.lower()
+
+        if "socks5" in scheme:
+            proxy_type = socks.SOCKS5
+        elif "socks4" in scheme:
+            proxy_type = socks.SOCKS4
+        elif "http" in scheme:
+            proxy_type = socks.HTTP
+        else:
+            raise ValueError(f"Tipo de proxy no soportado: {scheme}")
+
+        port = parsed.port
+        if port is None:
+            if proxy_type == socks.HTTP:
+                port = 8080
+            else:
+                port = 1080
+
+        return proxy_type, parsed.hostname, port, parsed.username, parsed.password
 
     # --- XMPP Socket ---
 
     def _connect_xmpp(self) -> ssl.SSLSocket:
+        if self.proxy:
+            import socks
+            proxy_type, host, port, username, password = self._parse_proxy(self.proxy)
+            raw_sock = socks.socksocket(socket.AF_INET)
+            raw_sock.set_proxy(proxy_type, host, port, username=username, password=password)
+        else:
+            raw_sock = socket.socket(socket.AF_INET)
+
+        raw_sock.settimeout(constants.DEFAULT_TIMEOUT)
+        raw_sock.connect((constants.XMPP_HOST, constants.XMPP_PORT))
+
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
-        sock = ctx.wrap_socket(socket.socket(socket.AF_INET))
-        sock.settimeout(constants.DEFAULT_TIMEOUT)
-        sock.connect((constants.XMPP_HOST, constants.XMPP_PORT))
+        sock = ctx.wrap_socket(raw_sock, server_hostname=constants.XMPP_HOST)
         sock.send(stanza.stream_open().encode())
         return sock
 
