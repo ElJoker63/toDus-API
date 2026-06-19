@@ -1,23 +1,36 @@
 <h1>📱 todus-lib</h1>
 
+<p align="center">
+  <a href="https://pypi.org/project/todus-lib/"><img src="https://img.shields.io/pypi/v/todus-lib.svg" alt="PyPI"></a>
+  <a href="https://pypi.org/project/todus-lib/"><img src="https://img.shields.io/pypi/pyversions/todus-lib.svg" alt="Python"></a>
+  <a href="https://github.com/ElJoker63/toDus-API/blob/main/LICENSE"><img src="https://img.shields.io/github/license/ElJoker63/toDus-API.svg" alt="License"></a>
+  <a href="https://github.com/ElJoker63/toDus-API/actions"><img src="https://github.com/ElJoker63/toDus-API/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+</p>
+
 <p><strong>Cliente Python para ToDus</strong> — la plataforma de mensajería instantánea cubana. Soporta chat privado, grupos MUC Light, archivos, imágenes, videos, stickers, botones interactivos y más.</p>
 
 <ul>
   <li><strong>Versión:</strong> 1.3.0</li>
   <li><strong>Python:</strong> >= 3.8</li>
-  <li><strong>Autor:</strong> OrionWolf</li>
+  <li><strong>Autor:</strong> ElJoker63</li>
+  <li><strong>Licencia:</strong> MIT</li>
 </ul>
 
 <hr>
 
 <h2>📦 Instalación</h2>
 
-<pre><code>pip install requests
-python setup.py install</code></pre>
+<pre><code>pip install todus-lib</code></pre>
 
-<p>O directamente desde la carpeta:</p>
+<p>O directamente desde el repositorio:</p>
 
-<pre><code>pip install -e .</code></pre>
+<pre><code>pip install git+https://github.com/ElJoker63/toDus-API.git</code></pre>
+
+<p>Para desarrollo:</p>
+
+<pre><code>git clone https://github.com/ElJoker63/toDus-API.git
+cd toDus-API
+pip install -e ".[dev]"</code></pre>
 
 <hr>
 
@@ -139,6 +152,8 @@ python examples/bot.py</code></pre>
     <tr><td>Sticker</td><td><code>send_sticker_message(to, sticker_id, ...)</code></td></tr>
     <tr><td>Contacto</td><td><code>send_contact_message(to, contact_id, ...)</code></td></tr>
     <tr><td>Botones</td><td><code>send_button_message(to, text, buttons)</code></td></tr>
+    <tr><td>Ubicación</td><td><code>send_location_message(to, lat, lon, ...)</code></td></tr>
+    <tr><td>Evento</td><td><code>send_event_message(to, title, start, end, ...)</code></td></tr>
     <tr><td>Editar</td><td><code>edit_message(to, new_body, original_msg_id)</code></td></tr>
     <tr><td>Eliminar</td><td><code>delete_message(to, message_id)</code></td></tr>
   </tbody>
@@ -202,21 +217,44 @@ print(f"Descargado {size} bytes en {path}")</code></pre>
 
 <h2>🗂️ Estructura del Proyecto</h2>
 
-<pre><code>todus-lib/
-├── todus/                  # Código fuente de la librería
-│   ├── __init__.py         # Exports principales
-│   ├── client.py           # ToDusClient y ToDusClient2
-│   ├── group.py            # Soporte para grupos MUC Light
-│   ├── stanza.py           # Constructor de stanzas XMPP
-│   ├── parser.py           # Parser incremental de stanzas
-│   ├── types.py            # Enums (FileType, ChatState, etc.)
-│   ├── util.py             # Utilidades (JID, XML, JWT, etc.)
-│   ├── constants.py        # Hosts, puertos, versiones
-│   ├── errors.py           # Excepciones personalizadas
-│   └── setup.py            # Configuración de setuptools
-├── examples/               # Ejemplos de uso
-│   └── bot.py              # Bot con comandos
-└── README.md               # Este archivo</code></pre>
+<pre><code>toDus-API/
+├── todus/                     # Paquete principal
+│   ├── __init__.py            # Exports y versión
+│   ├── client/                # Cliente XMPP/HTTP
+│   │   ├── __init__.py        # ToDusClient y ToDusClient2
+│   │   ├── base.py            # Conexión y transporte
+│   │   ├── auth.py            # Autenticación SMS/JWT
+│   │   ├── message.py         # Envío/recepción de mensajes
+│   │   ├── file.py            # Subida/descarga de archivos
+│   │   └── profile.py         # Perfil de usuario
+│   ├── stanzas/               # Generadores de stanzas XML
+│   │   ├── __init__.py
+│   │   ├── private.py         # Chat privado
+│   │   ├── group.py           # Chat grupal
+│   │   ├── presence.py        # Presencia XMPP
+│   │   └── utils.py           # Utilidades de protocolo
+│   ├── group.py               # Cliente de grupos MUC Light
+│   ├── parser.py              # Parser incremental de stanzas
+│   ├── stanza.py              # Re-exports unificados
+│   ├── types.py               # Enums (FileType, ChatState, etc.)
+│   ├── util.py                # Utilidades (JID, XML, JWT)
+│   ├── constants.py           # Hosts, puertos, versiones
+│   └── errors.py              # Excepciones personalizadas
+├── tests/                     # Tests unitarios
+│   ├── test_util.py
+│   ├── test_types.py
+│   └── test_stanzas.py
+├── examples/                  # Ejemplos de uso
+│   └── bot.py
+├── .github/workflows/         # CI/CD
+│   ├── ci.yml                 # Tests en push/PR
+│   └── pypi-publish.yml       # Publicación a PyPI
+├── pyproject.toml             # Configuración del paquete
+├── LICENSE                    # Licencia MIT
+├── CHANGELOG.md               # Registro de cambios
+├── CONTRIBUTING.md            # Guía para contribuir
+├── MANIFEST.in                # Archivos incluidos en sdist
+└── README.md                  # Este archivo</code></pre>
 
 <hr>
 
@@ -224,3 +262,6 @@ print(f"Descargado {size} bytes en {path}")</code></pre>
 
 - **ToDus oficial:** [ToDus](https://web.todus.cu)
 - **Apklis:** [Apklis](https://www.apklis.cu/application/cu.todus.android)
+- **PyPI:** [todus-lib](https://pypi.org/project/todus-lib/)
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
+- **Contribuir:** [CONTRIBUTING.md](CONTRIBUTING.md)

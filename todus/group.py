@@ -219,6 +219,38 @@ class GroupClient:
             sock.send(msg.encode())
         
         return mid
+
+    def send_location(self, group_id: str, lat: float, lon: float,
+                      zoom: float = 11.0, text: str = "", msg_id: str = "") -> str:
+        """Enviar ubicación a un grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        msg = stanza.group_location_message(group_jid, lat, lon, zoom, text, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
+
+    def send_event(self, group_id: str, title: str, start: int, end: int,
+                   all_day: bool, ics_data: str, event_id: str = "") -> str:
+        """Enviar evento a un grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = self._generate_msg_id()
+        
+        msg = stanza.group_event_message(group_jid, event_id, title, start, end, all_day, ics_data, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
     
     def edit_message(self, group_id: str, new_body: str, 
                      original_msg_id: str) -> str:
@@ -236,7 +268,7 @@ class GroupClient:
         
         return edit_id
     
-    def delete_message(self, group_id: str, message_id: str) -> str:
+    def delete_message(self, group_id: str, message_id: str, body: str = "", media_xml: str = "") -> str:
         """Eliminar un mensaje en grupo."""
         if not self.client.token:
             raise AuthenticationError("No autenticado")
@@ -244,7 +276,7 @@ class GroupClient:
         group_jid = self._get_group_jid(group_id)
         mid = self._generate_msg_id()
         
-        msg = stanza.group_delete_message(group_jid, message_id, mid)
+        msg = stanza.group_delete_message(group_jid, message_id, mid, body=body, media_xml=media_xml)
         
         with self.client._xmpp_session(self.client.token) as sock:
             sock.send(msg.encode())
@@ -322,7 +354,7 @@ class GroupClient:
     def upload_and_send_image(self, group_id: str, image_data: bytes,
                               filename: str = "image.jpg", caption: str = "") -> str:
         """Sube una imagen y la envía al grupo en un solo paso."""
-        url = self.client.upload_file(image_data, FileType.PICTURE)
+        url = self.client.upload_file(image_data, FileType.PICTURE, file_name=filename)
         width, height = util.get_image_dimensions(image_data)
         thumbnail = util.generate_blurhash(width, height)
         
@@ -334,5 +366,5 @@ class GroupClient:
     def upload_and_send_file(self, group_id: str, file_data: bytes,
                              filename: str, caption: str = "") -> str:
         """Sube un archivo y lo envía al grupo en un solo paso."""
-        url = self.client.upload_file(file_data, FileType.FILE)
+        url = self.client.upload_file(file_data, FileType.FILE, file_name=filename)
         return self.send_file(group_id, url, filename, len(file_data), caption)

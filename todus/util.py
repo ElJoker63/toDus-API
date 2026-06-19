@@ -120,3 +120,58 @@ def generate_blurhash(width: int, height: int) -> str:
     # Por ahora devolvemos un hash genérico
     # En producción usar librería blurhash
     return "LFE_@w00ay00ay00ay00ay00ay00ay"
+
+
+def sanitize_filename(filename: str, file_type: int = 0) -> str:
+    """Limpia caracteres problemáticos en el nombre del archivo para URLs, asegurando extensión según el tipo."""
+    import os
+    from .types import FileType
+    
+    # Mapeo de extensiones por defecto por tipo
+    default_exts = {
+        FileType.PICTURE: ".jpg",
+        FileType.VIDEO: ".mp4",
+        FileType.AUDIO: ".mp3",
+        FileType.VOICE: ".opus",
+        FileType.FILE: ".bin",
+        FileType.PROFILE: ".jpg",
+        FileType.PROFILE_THUMBNAIL: ".jpg",
+    }
+    
+    default_ext = default_exts.get(file_type, ".bin")
+    
+    if not filename:
+        # Generar nombre por defecto por tipo
+        default_names = {
+            FileType.PICTURE: "photo",
+            FileType.VIDEO: "video",
+            FileType.AUDIO: "audio",
+            FileType.VOICE: "voice",
+            FileType.FILE: "file",
+            FileType.PROFILE: "profile",
+            FileType.PROFILE_THUMBNAIL: "thumbnail",
+        }
+        stem = default_names.get(file_type, "file")
+        ext = default_ext
+    else:
+        # Solo el nombre del archivo si es una ruta
+        filename = os.path.basename(filename)
+        
+        # Separar nombre y extensión
+        parts = filename.rsplit(".", 1)
+        stem = parts[0]
+        ext = "." + parts[1] if len(parts) > 1 else ""
+        
+        # Si no tiene extensión, usar la correspondiente al tipo
+        if not ext:
+            ext = default_ext
+            
+    # Reemplazar caracteres no permitidos en nombres de archivos o problemáticos en URLs
+    stem_clean = re.sub(r'[\\/*?:"<>|\s]', "_", stem)
+    
+    # Limitar longitud para evitar URLs excesivamente largas
+    if len(stem_clean) > 50:
+        stem_clean = stem_clean[:47] + "..."
+        
+    return f"{stem_clean}{ext}"
+

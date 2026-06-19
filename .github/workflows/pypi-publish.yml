@@ -1,0 +1,115 @@
+name: Auto Release & Publish to PyPI
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-version:
+    name: Check for new version
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.check.outputs.new_version }}
+      version: ${{ steps.check.outputs.version }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Check if version tag exists
+      id: check
+      run: |
+        VERSION=$(python -c "import re; m=re.search(r'__version__\s*=\s*[\"'\''](.+?)[\"'\'']', open('todus/__init__.py').read()); print(m.group(1))")
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+          echo "Tag v$VERSION already exists, skipping release"
+          echo "new_version=false" >> $GITHUB_OUTPUT
+        else
+          echo "New version detected: $VERSION"
+          echo "new_version=true" >> $GITHUB_OUTPUT
+        fi
+
+  test:
+    name: Run tests
+    needs: check-version
+    if: needs.check-version.outputs.new_version == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.10", "3.12"]
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Run tests
+      run: python -m pytest
+
+  release:
+    name: Create Release
+    needs: [check-version, test]
+    if: needs.check-version.outputs.new_version == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Create Git Tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -a "v${{ needs.check-version.outputs.version }}" -m "Release v${{ needs.check-version.outputs.version }}"
+        git push origin "v${{ needs.check-version.outputs.version }}"
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: "v${{ needs.check-version.outputs.version }}"
+        name: "v${{ needs.check-version.outputs.version }}"
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+
+  publish:
+    name: Build and publish to PyPI
+    needs: [check-version, release]
+    if: needs.check-version.outputs.new_version == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build
+
+    - name: Build distribution
+      run: python -m build
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1

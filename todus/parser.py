@@ -55,6 +55,20 @@ def parse_todus_message(stanza: str) -> dict:
         "offline_ts": "",
         "edited": "",
         "deleted": "",
+        "chat_state": "",
+        "receipt": "",
+        "receipt_type": "",
+        "location_id": "",
+        "location_lat": 0.0,
+        "location_lon": 0.0,
+        "location_zoom": 0.0,
+        "location_text": "",
+        "event_id": "",
+        "event_title": "",
+        "event_start": 0,
+        "event_end": 0,
+        "event_all_day": False,
+        "event_ics": "",
         "has_format": False,
         "buttons": [],
         "raw": stanza,
@@ -198,7 +212,67 @@ def parse_todus_message(stanza: str) -> dict:
     deleted_match = re.search(r"<deleted\b[^>]*>", stanza)
     if deleted_match:
         deleted_tag = deleted_match.group(0)
-        result["deleted"] = _attr(deleted_tag, "i")
+        result["deleted"] = _attr(deleted_tag, "mi") or _attr(deleted_tag, "i")
+
+    # Ubicación adjunta (location)
+    location_match = re.search(r"<location\b[^>]*>", stanza)
+    if location_match:
+        loc_tag = location_match.group(0)
+        result["location_id"] = _attr(loc_tag, "i")
+        result["message_file_id"] = _attr(loc_tag, "mi")
+        try:
+            result["location_lat"] = float(_attr(loc_tag, "lat"))
+        except ValueError:
+            result["location_lat"] = 0.0
+        try:
+            result["location_lon"] = float(_attr(loc_tag, "lon"))
+        except ValueError:
+            result["location_lon"] = 0.0
+        try:
+            result["location_zoom"] = float(_attr(loc_tag, "z"))
+        except ValueError:
+            result["location_zoom"] = 0.0
+        result["location_text"] = util.unescape_xml(_attr(loc_tag, "t"))
+
+    # Evento adjunto (event)
+    event_match = re.search(r"<event\b[^>]*>", stanza)
+    if event_match:
+        event_tag = event_match.group(0)
+        result["event_id"] = _attr(event_tag, "i")
+        result["message_file_id"] = _attr(event_tag, "mi")
+        result["event_title"] = util.unescape_xml(_attr(event_tag, "ti"))
+        try:
+            result["event_start"] = int(_attr(event_tag, "s"))
+        except ValueError:
+            result["event_start"] = 0
+        try:
+            result["event_end"] = int(_attr(event_tag, "e"))
+        except ValueError:
+            result["event_end"] = 0
+        result["event_all_day"] = _attr(event_tag, "ad").lower() == "true"
+        
+        ics_match = re.search(r"<ics>(.*?)</ics>", stanza, re.DOTALL)
+        if ics_match:
+            result["event_ics"] = ics_match.group(1).strip()
+
+    # Estado de chat (csp/csc)
+    if "<csp xmlns='uc1'/>" in stanza:
+        result["chat_state"] = "composing"
+    elif "<csc xmlns='uc1'/>" in stanza:
+        result["chat_state"] = "paused"
+
+    # Recibos de entrega (dd) o lectura (rd)
+    receipt_match = re.search(r"<dd\b[^>]*>", stanza)
+    if receipt_match:
+        receipt_tag = receipt_match.group(0)
+        result["receipt"] = _attr(receipt_tag, "i")
+        result["receipt_type"] = "delivered"
+    else:
+        read_match = re.search(r"<rd\b[^>]*>", stanza)
+        if read_match:
+            read_tag = read_match.group(0)
+            result["receipt"] = _attr(read_tag, "i")
+            result["receipt_type"] = "read"
 
     return result
 
