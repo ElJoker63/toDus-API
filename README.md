@@ -11,7 +11,7 @@
 
 <ul>
   <li><strong>Versión:</strong> 1.3.0</li>
-  <li><strong>Python:</strong> >= 3.8</li>
+  <li><strong>Python:</strong> >= 3.11</li>
   <li><strong>Autor:</strong> ElJoker63</li>
   <li><strong>Licencia:</strong> MIT</li>
 </ul>

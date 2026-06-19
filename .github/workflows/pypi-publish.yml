@@ -21,7 +21,7 @@ jobs:
     - name: Check if version tag exists
       id: check
       run: |
-        VERSION=$(python -c "import re; m=re.search(r'__version__\s*=\s*[\"'\''](.+?)[\"'\'']', open('todus/__init__.py').read()); print(m.group(1))")
+        VERSION=$(python3 -c "import re; m=re.search(r'__version__\s*=\s*[\"'\''](.+?)[\"'\'']', open('todus/__init__.py').read()); print(m.group(1))")
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         if git rev-parse "v$VERSION" >/dev/null 2>&1; then
           echo "Tag v$VERSION already exists, skipping release"
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.10", "3.12"]
+        python-version: ["3.11", "3.12", "3.13"]
 
     steps:
     - name: Checkout Code
