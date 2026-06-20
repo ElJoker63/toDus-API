@@ -26,6 +26,9 @@ class ToDusClientBase:
         self.proxy = proxy
         self.session = requests.Session()
         self.session.headers.update({"Accept-Encoding": "gzip"})
+        self.session.verify = False  # <-- AGREGAR ESTA LÍNEA para omitir verificación estricta de SSL en las URLs de ToDus
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         if self.proxy:
             self.session.proxies = {
                 "http": self.proxy,
@@ -74,6 +77,7 @@ class ToDusClientBase:
 
         ctx = ssl.create_default_context()
         ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE  # <-- AGREGAR ESTA LÍNEA para evitar fallos de certificados de ToDus/Cuba
         sock = ctx.wrap_socket(raw_sock, server_hostname=constants.XMPP_HOST)
         sock.send(stanza.stream_open().encode())
         return sock

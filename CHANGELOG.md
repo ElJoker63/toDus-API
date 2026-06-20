@@ -5,6 +5,12 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.6] - 2026-06-20
+
+### Fixed
+- Desactivada la verificación SSL en las peticiones HTTP y en el socket XMPP para evitar errores de validación de certificados de ToDus/Cuba en entornos de producción sin CAs locales (como contenedores Docker slim/alpine).
+- Silenciadas las advertencias de `InsecureRequestWarning` producidas por la desactivación de verificación SSL en `requests`.
+
 ## [1.3.5] - 2026-06-20
 
 ### Fixed
@@ -84,6 +90,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.3.6]: https://github.com/ElJoker63/toDus-API/compare/v1.3.5...v1.3.6
 [1.3.5]: https://github.com/ElJoker63/toDus-API/compare/v1.3.4...v1.3.5
 [1.3.4]: https://github.com/ElJoker63/toDus-API/compare/v1.3.3...v1.3.4
 [1.3.3]: https://github.com/ElJoker63/toDus-API/compare/v1.3.2...v1.3.3
