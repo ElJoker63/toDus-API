@@ -176,3 +176,51 @@ def group_event_message(to: str, event_id: str, title: str, start: int, end: int
         f"<b/>"
         f"</m>"
     )
+
+
+def group_update_name(to: str, name: str, msg_id: str = "") -> str:
+    """Stanza para actualizar el nombre del grupo MUC Light."""
+    mid = msg_id or _generate_msg_id()
+    v_hash = _generate_msg_id()
+    name_esc = util.escape_xml(name)
+    return (
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<x xmlns='x10'><v>{v_hash}</v><g4>{name_esc}</g4></x>"
+        f"</m>"
+    )
+
+
+def group_update_subject(to: str, subject: str, msg_id: str = "") -> str:
+    """Stanza para actualizar el asunto/descripción del grupo MUC Light."""
+    mid = msg_id or _generate_msg_id()
+    v_hash = _generate_msg_id()
+    subject_esc = util.escape_xml(subject)
+    return (
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<x xmlns='x10'><v>{v_hash}</v><subject>{subject_esc}</subject></x>"
+        f"</m>"
+    )
+
+
+def group_update_avatar(to: str, avatar_url: str, msg_id: str = "") -> str:
+    """Stanza para actualizar el avatar del grupo MUC Light."""
+    mid = msg_id or _generate_msg_id()
+    v_hash = _generate_msg_id()
+    url_esc = util.escape_xml(avatar_url)
+    return (
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<x xmlns='x10'><v>{v_hash}</v><g3>{url_esc}</g3></x>"
+        f"</m>"
+    )
+
+
+def group_update_avatar_thumbnail(to: str, thumbnail_url: str, msg_id: str = "") -> str:
+    """Stanza para actualizar la miniatura del avatar del grupo MUC Light."""
+    mid = msg_id or _generate_msg_id()
+    v_hash = _generate_msg_id()
+    url_esc = util.escape_xml(thumbnail_url)
+    return (
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<x xmlns='x10'><v>{v_hash}</v><picture_thumbnail_url>{url_esc}</picture_thumbnail_url></x>"
+        f"</m>"
+    )

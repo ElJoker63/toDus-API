@@ -5,6 +5,15 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.0] - 2026-06-20
+
+### Added
+- Implementadas funciones para la administración de grupos MUC Light.
+- Nuevos métodos en `GroupClient` para actualizar la información de un grupo:
+  - `set_name`: Permite cambiar el nombre del grupo (`<g4>`).
+  - `set_subject`: Permite cambiar la descripción o asunto del grupo (`<subject>`).
+  - `set_avatar`: Permite actualizar el avatar (imagen) del grupo (`<g3>` y `<picture_thumbnail_url>`).
+
 ## [1.3.9] - 2026-06-20
 
 ### Fixed
@@ -110,6 +119,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.4.0]: https://github.com/ElJoker63/toDus-API/compare/v1.3.9...v1.4.0
 [1.3.9]: https://github.com/ElJoker63/toDus-API/compare/v1.3.8...v1.3.9
 [1.3.8]: https://github.com/ElJoker63/toDus-API/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/ElJoker63/toDus-API/compare/v1.3.6...v1.3.7

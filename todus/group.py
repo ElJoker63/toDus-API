@@ -251,6 +251,62 @@ class GroupClient:
             sock.send(msg.encode())
         
         return mid
+
+    def set_name(self, group_id: str, name: str, msg_id: str = "") -> str:
+        """Actualizar el nombre del grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        msg = stanza.group_update_name(group_jid, name, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
+
+    def set_subject(self, group_id: str, subject: str, msg_id: str = "") -> str:
+        """Actualizar el asunto o descripción del grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        msg = stanza.group_update_subject(group_jid, subject, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
+
+    def set_avatar(self, group_id: str, avatar_url: str, thumbnail_url: str = "", msg_id: str = "") -> str:
+        """Actualizar el avatar del grupo.
+        
+        Típicamente requiere subir la imagen a los servidores de ToDus primero (como 'profile' o 'picture')
+        y obtener las URLs de la imagen y la miniatura.
+        """
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        # Enviar stanza de imagen original
+        msg1 = stanza.group_update_avatar(group_jid, avatar_url, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg1.encode())
+            
+            # Enviar miniatura si está disponible (es lo que hace la app)
+            if thumbnail_url:
+                mid_thumb = self._generate_msg_id()
+                msg2 = stanza.group_update_avatar_thumbnail(group_jid, thumbnail_url, msg_id=mid_thumb)
+                sock.send(msg2.encode())
+        
+        return mid
     
     def edit_message(self, group_id: str, new_body: str, 
                      original_msg_id: str) -> str:
