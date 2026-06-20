@@ -5,6 +5,14 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.8] - 2026-06-20
+
+### Fixed
+- Corregido un bug en los stanzas de grupos (`group_file_message`, `group_image_message`, `group_video_message`) donde el parámetro `caption` era ignorado y no se incluía en el XML. Ahora los grupos soportan correctamente pies de foto y descripciones.
+
+### Changed
+- Actualizados los parámetros de autenticación a `AUTH_VERSION_NAME = "2.1.2"` y `AUTH_VERSION_CODE = "30102"` para igualar la versión actual de la app oficial de ToDus.
+
 ## [1.3.7] - 2026-06-20
 
 ### Fixed
@@ -96,6 +104,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.3.8]: https://github.com/ElJoker63/toDus-API/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/ElJoker63/toDus-API/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/ElJoker63/toDus-API/compare/v1.3.5...v1.3.6
 [1.3.5]: https://github.com/ElJoker63/toDus-API/compare/v1.3.4...v1.3.5
