@@ -224,3 +224,62 @@ def group_update_avatar_thumbnail(to: str, thumbnail_url: str, msg_id: str = "")
         f"<x xmlns='x10'><v>{v_hash}</v><picture_thumbnail_url>{url_esc}</picture_thumbnail_url></x>"
         f"</m>"
     )
+
+
+def group_leave_iq(to: str, msg_id: str = "") -> str:
+    """Stanza IQ para salir formalmente de un grupo (x13)."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<iq to='{to}' type='set' id='{mid}'>"
+        f"<query xmlns='x13'/>"
+        f"</iq>"
+    )
+
+
+def group_get_link_iq(to: str, msg_id: str = "") -> str:
+    """Stanza IQ para solicitar el enlace de invitación de un grupo (x14)."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<iq to='{to}' type='get' id='{mid}'>"
+        f"<query xmlns='x14'/>"
+        f"</iq>"
+    )
+
+
+def group_set_link_iq(to: str, msg_id: str = "") -> str:
+    """Stanza IQ para revocar y generar un nuevo enlace de invitación (x14)."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<iq to='{to}' type='set' id='{mid}'>"
+        f"<query xmlns='x14'/>"
+        f"</iq>"
+    )
+
+
+def group_get_members_iq(to: str, msg_id: str = "") -> str:
+    """Stanza IQ para solicitar la lista de miembros de un grupo (x11)."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<iq to='{to}' type='get' id='{mid}'>"
+        f"<query xmlns='x11'/>"
+        f"</iq>"
+    )
+
+
+def group_set_members_iq(to: str, affiliations: dict[str, str], msg_id: str = "") -> str:
+    """
+    Stanza IQ para modificar roles, añadir o expulsar miembros (x11).
+    affiliations: dict de {numero_telefono: rol}
+                  ej: {"5350000000": "participant", "5351111111": "none"}
+    """
+    mid = msg_id or _generate_msg_id()
+    users_xml = ""
+    for phone, role in affiliations.items():
+        user_jid = f"{phone}@im.todus.cu"
+        users_xml += f"<user affiliation='{role}'>{user_jid}</user>"
+        
+    return (
+        f"<iq to='{to}' type='set' id='{mid}'>"
+        f"<query xmlns='x11'>{users_xml}</query>"
+        f"</iq>"
+    )

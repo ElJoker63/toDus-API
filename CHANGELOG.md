@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.1] - 2026-06-20
+
+### Added
+- Integración nativa de namespaces `x11`, `x13`, `x14` para gestión avanzada de grupos.
+- Implementado el método correcto de `leave()` mediante petición IQ `x13`.
+- Nuevas funciones de miembros: `get_members`, `set_member_role`, `kick_member`.
+- Nuevas funciones de enlaces: `get_invite_link`, `revoke_invite_link`.
+- Funciones parseadoras auxiliares: `parse_members_response`, `parse_invite_link_response`.
+- Ejemplo funcional `examples/send_grupo_admin.py`.
+
 ## [1.4.0] - 2026-06-20
 
 ### Added
@@ -119,6 +129,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.4.1]: https://github.com/ElJoker63/toDus-API/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/ElJoker63/toDus-API/compare/v1.3.9...v1.4.0
 [1.3.9]: https://github.com/ElJoker63/toDus-API/compare/v1.3.8...v1.3.9
 [1.3.8]: https://github.com/ElJoker63/toDus-API/compare/v1.3.7...v1.3.8

@@ -11,7 +11,7 @@
 <p><strong>Cliente Python para ToDus</strong> — la plataforma de mensajería instantánea cubana. Soporta chat privado, grupos MUC Light, archivos, imágenes, videos, stickers, botones interactivos y más.</p>
 
 <ul>
-  <li><strong>Versión:</strong> 1.4.0</li>
+  <li><strong>Versión:</strong> 1.4.1</li>
   <li><strong>Python:</strong> >= 3.11</li>
   <li><strong>Autor:</strong> ElJoker63</li>
   <li><strong>Licencia:</strong> MIT</li>
@@ -179,7 +179,35 @@ def on_group_msg(msg):
 client.groups.on_group_message("mi-grupo-id", on_group_msg)
 
 # Salir del grupo
-client.groups.leave("mi-grupo-id")</code></pre>
+client.groups.leave("mi-grupo-id")
+
+# --- ADMINISTRACIÓN AVANZADA ---
+# Obtener enlace de invitación
+client.groups.get_invite_link("mi-grupo-id")
+
+# Revocar y regenerar enlace
+client.groups.revoke_invite_link("mi-grupo-id")
+
+# Obtener lista de miembros
+client.groups.get_members("mi-grupo-id")
+
+# Cambiar rol (participant, moderator, owner) o expulsar (none)
+client.groups.set_member_role("mi-grupo-id", "5350000000", "participant")
+client.groups.kick_member("mi-grupo-id", "5350000000")
+
+# Utilidades para extraer resultados de los eventos
+def on_message(msg):
+    raw = msg.get("raw", "")
+    members = client.groups.parse_members_response(raw)
+    if members:
+        print("Miembros:", members)
+        
+    link = client.groups.parse_invite_link_response(raw)
+    if link:
+        print("Enlace de invitación:", link)
+        
+client.add_message_listener(on_message)
+</code></pre>
 
 <hr>
 

@@ -97,17 +97,23 @@ class GroupClient:
             logger.error(f"Error uniéndose al grupo {group_id}: {e}")
             raise GroupError(f"No se pudo unir al grupo: {e}")
     
-    def leave(self, group_id: str) -> bool:
-        """Salir de un grupo."""
+    def leave(self, group_id: str, msg_id: str = "") -> bool:
+        """Salir formalmente de un grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+            
         if group_id not in self._joined_groups:
-            return False
+            # Intentamos enviar el leave de todas formas por si es un grupo del que 
+            # no nos hemos unido en esta sesion pero queremos salir de verdad.
+            pass
         
         group_jid = self._get_group_jid(group_id)
-        unavailable = stanza.muc_unavailable(group_jid)
+        mid = msg_id or self._generate_msg_id()
+        leave_iq = stanza.group_leave_iq(group_jid, msg_id=mid)
         
         try:
             with self.client._xmpp_session(self.client.token) as sock:
-                sock.send(unavailable.encode())
+                sock.send(leave_iq.encode())
                 self._joined_groups.discard(group_id)
                 logger.info(f"Salido del grupo: {group_id}")
                 return True
@@ -308,6 +314,70 @@ class GroupClient:
         
         return mid
     
+    def get_invite_link(self, group_id: str, msg_id: str = "") -> str:
+        """Solicitar el enlace de invitación del grupo.
+        Retorna el msg_id de la petición. El resultado llegará por listen_messages()."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+            
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        iq_msg = stanza.group_get_link_iq(group_jid, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(iq_msg.encode())
+            
+        return mid
+
+    def revoke_invite_link(self, group_id: str, msg_id: str = "") -> str:
+        """Revocar el enlace actual y generar uno nuevo.
+        Retorna el msg_id de la petición."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+            
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        iq_msg = stanza.group_set_link_iq(group_jid, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(iq_msg.encode())
+            
+        return mid
+
+    def get_members(self, group_id: str, msg_id: str = "") -> str:
+        """Solicitar la lista de miembros del grupo.
+        Retorna el msg_id de la petición. El resultado llegará por listen_messages()."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+            
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        iq_msg = stanza.group_get_members_iq(group_jid, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(iq_msg.encode())
+            
+        return mid
+
+    def set_member_role(self, group_id: str, user_phone: str, role: str, msg_id: str = "") -> str:
+        """Modificar el rol de un miembro o añadirlo (ej. participant, moderator, owner)."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+            
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        affiliations = {user_phone: role}
+        iq_msg = stanza.group_set_members_iq(group_jid, affiliations, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(iq_msg.encode())
+            
+        return mid
+
+    def kick_member(self, group_id: str, user_phone: str, msg_id: str = "") -> str:
+        """Expulsar a un miembro del grupo (asignar rol 'none')."""
+        return self.set_member_role(group_id, user_phone, "none", msg_id=msg_id)
+
     def edit_message(self, group_id: str, new_body: str, 
                      original_msg_id: str) -> str:
         """Editar un mensaje en grupo."""
@@ -379,6 +449,37 @@ class GroupClient:
         if "<subject" in raw_stanza and "</subject>" in raw_stanza:
             return GroupEvent.SUBJECT_CHANGED
         return None
+        
+    def parse_invite_link_response(self, raw_stanza: str) -> Optional[str]:
+        """
+        Extrae el enlace de invitación a partir de la respuesta cruda de un IQ stanza (x14).
+        Útil para capturar la respuesta generada por get_invite_link() o revoke_invite_link().
+        """
+        if "xmlns='x14'" not in raw_stanza:
+            return None
+        # <query xmlns='x14'>https://todus.cu/l/xxx</query> o simplemente extraer el contenido
+        link_match = re.search(r"<query xmlns='x14'>([^<]+)</query>", raw_stanza)
+        if link_match:
+            return util.unescape_xml(link_match.group(1))
+        return None
+
+    def parse_members_response(self, raw_stanza: str) -> Optional[Dict[str, str]]:
+        """
+        Extrae la lista de miembros y roles a partir de la respuesta cruda de un IQ stanza (x11).
+        Retorna un diccionario de la forma: {"5350000000": "participant", ...}
+        """
+        if "xmlns='x11'" not in raw_stanza:
+            return None
+        
+        members = {}
+        # Buscar todas las etiquetas <user affiliation='rol'>numero@im.todus.cu</user>
+        matches = re.finditer(r"<user affiliation='([^']+)'>([^<@]+)(?:@[^<]+)?</user>", raw_stanza)
+        for match in matches:
+            role = match.group(1)
+            phone = match.group(2)
+            members[phone] = role
+            
+        return members
     
     def on_group_message(self, group_id: str, callback: Callable):
         """Registra callback para mensajes de un grupo específico."""
