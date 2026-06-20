@@ -71,6 +71,28 @@ class ToDusProfileMixin:
                 logging.error(e.response.text)
             return False
 
+    def set_todus_id(self, new_id: str, msg_id: str = "") -> str:
+        """
+        Cambia el identificador único (@username o todus_id) de la cuenta a través de XMPP.
+        El identificador no debe contener espacios ni el prefijo '@'.
+        Retorna el msg_id de la petición.
+        """
+        if not self.logged or not self.token:
+            from ..errors import AuthenticationError
+            raise AuthenticationError("Se requiere haber iniciado sesión (login).")
+
+        from ..stanzas.profile import set_todus_id_iq
+        import hashlib
+        from .. import util
+        
+        mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
+        iq_xml = set_todus_id_iq(new_id, msg_id=mid)
+
+        with self._xmpp_session(self.token) as sock:
+            sock.send(iq_xml.encode())
+            
+        return mid
+
     def upload_avatar(self, token: str, image_data: bytes, thumbnail_data: bytes = None) -> tuple[str, str]:
         if thumbnail_data is None:
             thumbnail_data = image_data

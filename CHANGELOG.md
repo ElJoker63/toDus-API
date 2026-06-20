@@ -5,6 +5,11 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.3] - 2026-06-20
+
+### Added
+- Añadido el método `set_todus_id` al `ToDusProfileMixin` para permitir cambiar el `@username` del usuario mediante la API XMPP nativa de ToDus (utilizando el stanza `todus:users:updatetodusid`).
+
 ## [1.4.2] - 2026-06-20
 
 ### Changed
@@ -135,6 +140,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.4.3]: https://github.com/ElJoker63/toDus-API/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/ElJoker63/toDus-API/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/ElJoker63/toDus-API/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/ElJoker63/toDus-API/compare/v1.3.9...v1.4.0
