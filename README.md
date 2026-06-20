@@ -11,7 +11,7 @@
 <p><strong>Cliente Python para ToDus</strong> — la plataforma de mensajería instantánea cubana. Soporta chat privado, grupos MUC Light, archivos, imágenes, videos, stickers, botones interactivos y más.</p>
 
 <ul>
-  <li><strong>Versión:</strong> 1.4.6</li>
+  <li><strong>Versión:</strong> 1.4.7</li>
   <li><strong>Python:</strong> >= 3.11</li>
   <li><strong>Autor:</strong> ElJoker63</li>
   <li><strong>Licencia:</strong> MIT</li>
@@ -266,6 +266,29 @@ client.leave_channel("todus_oficial")
 
 <hr>
 
+<h2>🌟 Estados e Historias (NUEVO)</h2>
+
+<p>La versión 1.4.7 añade soporte nativo para los Estados/Historias de ToDus.</p>
+
+<pre><code># Ver tus seguidores
+client.get_followers()
+
+# Publicar un nuevo estado (diccionario JSON automático)
+# ToDus usa JSON en base64 internamente, la API lo convierte por ti.
+estado = {
+    "text": "¡Hola desde la API de Python!",
+    "bg_color": "#ff0000",
+    "font": 1
+}
+client.publish_status(estado)
+
+# Seguir y dejar de seguir los estados de otros usuarios
+client.follow_user("5350000000")
+client.unfollow_user("5350000000")
+</code></pre>
+
+<hr>
+
 <h2>📤 Subir y Descargar Archivos</h2>
 
 <pre><code># Subir cualquier archivo
@@ -311,12 +334,14 @@ print(f"Descargado {size} bytes en {path}")</code></pre>
 │   │   ├── message.py         # Envío/recepción de mensajes
 │   │   ├── file.py            # Subida/descarga de archivos
 │   │   ├── profile.py         # Perfil de usuario
+│   │   ├── status.py          # Estados e historias
 │   │   └── channels.py        # Canales de ToDus
 │   ├── stanzas/               # Generadores de stanzas XML
 │   │   ├── __init__.py
 │   │   ├── private.py         # Chat privado
 │   │   ├── group.py           # Chat grupal
 │   │   ├── channels.py        # Canales
+│   │   ├── status.py          # Estados e historias
 │   │   ├── presence.py        # Presencia XMPP
 │   │   └── utils.py           # Utilidades de protocolo
 │   ├── group.py               # Cliente de grupos MUC Light
@@ -334,6 +359,7 @@ print(f"Descargado {size} bytes en {path}")</code></pre>
 │   ├── bot.py
 │   ├── send_grupo_admin.py
 │   ├── update_profile.py
+│   ├── status_example.py
 │   └── channels_example.py
 ├── .github/workflows/         # CI/CD
 │   ├── ci.yml                 # Tests en push/PR

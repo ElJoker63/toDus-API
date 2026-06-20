@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.7] - 2026-06-20
+
+### Added
+- Implementación base de **Estados / Historias de ToDus** (`StatusManager`). Se añadió el mixin `ToDusStatusMixin` y soporte nativo XMPP (`td:status:*`):
+  - `publish_status`: Publica historias mediante carga Base64 automática de payloads.
+  - `delete_status`: Permite eliminar un estado publicado.
+  - `get_status`: Recupera un estado de otro usuario.
+  - `follow_user` y `unfollow_user`: Suscripción y cancelación de estados de otros usuarios.
+  - `get_followers`, `get_following` y `get_follower_info`: Interfaz completa para consultar la red de seguidores y seguir de manera paginada.
+
 ## [1.4.6] - 2026-06-20
 
 ### Added
@@ -165,6 +175,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.4.7]: https://github.com/ElJoker63/toDus-API/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/ElJoker63/toDus-API/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/ElJoker63/toDus-API/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/ElJoker63/toDus-API/compare/v1.4.3...v1.4.4
