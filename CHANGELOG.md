@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.0] - 2024-06-20
+
+### Added
+- **Cobertura 100% de la API de ToDus:** Implementación de todas las funcionalidades internas restantes.
+- **Privacidad (`ToDusPrivacyMixin`)**: Métodos para configurar y consultar quién ve tu perfil o te añade a grupos (`get_profile_privacy`, `set_profile_privacy`, `get_group_privacy`, `set_group_privacy`).
+- **Bloqueos (`ToDusBlockMixin`)**: Gestión de lista negra de contactos (`block_user`, `unblock_user`, `get_block_list`, `get_block_list_paginated`).
+- **Última Conexión (`ToDusLastMixin`)**: Consulta de actividad reciente de usuarios (`get_last_seen`).
+- **Ubicación (`ToDusLocationMixin`)**: Geolocalización y Personas Cerca (`set_location`, `hide_location`, `get_people_near`, `get_near_status`).
+- **Llamadas (`ToDusCallMixin`)**: Señalización XMPP para VoIP (`start_call`, `pickup_call`, `reject_call`, `end_call`, `get_turn_credentials`).
+
 ## [1.4.7] - 2026-06-20
 
 ### Added
