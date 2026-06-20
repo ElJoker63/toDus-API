@@ -23,7 +23,7 @@ def message(to: str, body: str, msg_id: str = "", reply_to: str = "", msg_type: 
     )
 
 
-def edit_message(to: str, new_body: str, original_msg_id: str, edit_id: str = "") -> str:
+def edit_message(to: str, new_body: str, original_msg_id: str, edit_id: str = "", reply_to: str = "") -> str:
     """Edita un mensaje existente en chat privado."""
     eid = edit_id or _generate_msg_id()
     body_esc = util.escape_xml(new_body)
@@ -174,7 +174,7 @@ def video_message(to: str, url: str, video_id: str, file_name: str, file_size: i
     )
 
 
-def delete_message(to: str, message_id: str, msg_id: str = "", msg_type: str = "c", body: str = "", media_xml: str = "") -> str:
+def delete_message(to: str, message_id: str, msg_id: str = "", msg_type: str = "c", body: str = "", media_xml: str = "", reply_to: str = "") -> str:
     """Eliminar mensaje."""
     mid = msg_id or message_id
     did = _generate_msg_id()

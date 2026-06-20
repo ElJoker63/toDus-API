@@ -24,7 +24,7 @@ def group_message(to: str, body: str, msg_id: str = "", reply_to: str = "") -> s
 
 
 def group_file_message(to: str, url: str, file_name: str, file_size: int, 
-                       caption: str = "", msg_id: str = "") -> str:
+                       caption: str = "", msg_id: str = "", reply_to: str = "") -> str:
     """Archivo para grupo MUC Light."""
     mid = msg_id or _generate_msg_id()
     fid = _generate_msg_id()
@@ -46,7 +46,7 @@ def group_file_message(to: str, url: str, file_name: str, file_size: int,
 
 def group_image_message(to: str, url: str, file_name: str, file_size: int,
                         width: int, height: int, thumbnail: str = "", 
-                        caption: str = "", msg_id: str = "") -> str:
+                        caption: str = "", msg_id: str = "", reply_to: str = "") -> str:
     """Imagen para grupo MUC Light."""
     mid = msg_id or _generate_msg_id()
     fid = _generate_msg_id()
@@ -70,7 +70,7 @@ def group_image_message(to: str, url: str, file_name: str, file_size: int,
 
 def group_video_message(to: str, url: str, video_id: str, file_name: str, 
                         file_size: int, duration: int, width: int, height: int, 
-                        thumbnail: str, caption: str = "", msg_id: str = "") -> str:
+                        thumbnail: str, caption: str = "", msg_id: str = "", reply_to: str = "") -> str:
     """Video para grupo MUC Light."""
     mid = msg_id or _generate_msg_id()
     name_esc = util.escape_xml(file_name)
@@ -92,7 +92,7 @@ def group_video_message(to: str, url: str, video_id: str, file_name: str,
 
 def group_sticker_message(to: str, sticker_id: str, sticker_name: str, 
                           sticker_pack: str, sticker_hash: str, 
-                          msg_id: str = "") -> str:
+                          msg_id: str = "", reply_to: str = "") -> str:
     """Sticker para grupo MUC Light."""
     mid = msg_id or _generate_msg_id()
     name_esc = util.escape_xml(sticker_name)
@@ -111,7 +111,7 @@ def group_sticker_message(to: str, sticker_id: str, sticker_name: str,
 
 
 def group_contact_message(to: str, contact_id: str, contact_name: str, 
-                          contact_phone: str, msg_id: str = "") -> str:
+                          contact_phone: str, msg_id: str = "", reply_to: str = "") -> str:
     """Contacto para grupo MUC Light."""
     mid = msg_id or _generate_msg_id()
     name_esc = util.escape_xml(contact_name)
@@ -129,7 +129,7 @@ def group_contact_message(to: str, contact_id: str, contact_name: str,
 
 
 def group_edit_message(to: str, new_body: str, original_msg_id: str, 
-                       edit_id: str = "") -> str:
+                       edit_id: str = "", reply_to: str = "") -> str:
     """Editar mensaje en grupo."""
     eid = edit_id or _generate_msg_id()
     body_esc = util.escape_xml(new_body)
@@ -145,7 +145,7 @@ def group_edit_message(to: str, new_body: str, original_msg_id: str,
     )
 
 
-def group_delete_message(to: str, message_id: str, msg_id: str = "", body: str = "", media_xml: str = "") -> str:
+def group_delete_message(to: str, message_id: str, msg_id: str = "", body: str = "", media_xml: str = "", reply_to: str = "") -> str:
     """Eliminar mensaje en grupo."""
     mid = msg_id or message_id
     did = _generate_msg_id()
@@ -203,7 +203,6 @@ def group_update_name(to: str, name: str, msg_id: str = "") -> str:
     mid = msg_id or _generate_msg_id()
     v_hash = _generate_msg_id()
     name_esc = util.escape_xml(name)
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<x xmlns='x10'><v>{v_hash}</v><g4>{name_esc}</g4></x>"
@@ -216,7 +215,6 @@ def group_update_subject(to: str, subject: str, msg_id: str = "") -> str:
     mid = msg_id or _generate_msg_id()
     v_hash = _generate_msg_id()
     subject_esc = util.escape_xml(subject)
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<x xmlns='x10'><v>{v_hash}</v><subject>{subject_esc}</subject></x>"
@@ -229,7 +227,6 @@ def group_update_avatar(to: str, avatar_url: str, msg_id: str = "") -> str:
     mid = msg_id or _generate_msg_id()
     v_hash = _generate_msg_id()
     url_esc = util.escape_xml(avatar_url)
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<x xmlns='x10'><v>{v_hash}</v><g3>{url_esc}</g3></x>"
@@ -242,7 +239,6 @@ def group_update_avatar_thumbnail(to: str, thumbnail_url: str, msg_id: str = "")
     mid = msg_id or _generate_msg_id()
     v_hash = _generate_msg_id()
     url_esc = util.escape_xml(thumbnail_url)
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<x xmlns='x10'><v>{v_hash}</v><picture_thumbnail_url>{url_esc}</picture_thumbnail_url></x>"
@@ -253,7 +249,6 @@ def group_update_avatar_thumbnail(to: str, thumbnail_url: str, msg_id: str = "")
 def group_leave_iq(to: str, msg_id: str = "") -> str:
     """Stanza IQ para salir formalmente de un grupo (x13)."""
     mid = msg_id or _generate_msg_id()
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<iq to='{to}' type='set' id='{mid}'>"
         f"<query xmlns='x13'/>"
@@ -264,7 +259,6 @@ def group_leave_iq(to: str, msg_id: str = "") -> str:
 def group_get_link_iq(to: str, msg_id: str = "") -> str:
     """Stanza IQ para solicitar el enlace de invitación de un grupo (x14)."""
     mid = msg_id or _generate_msg_id()
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<iq to='{to}' type='get' id='{mid}'>"
         f"<query xmlns='x14'/>"
@@ -275,7 +269,6 @@ def group_get_link_iq(to: str, msg_id: str = "") -> str:
 def group_set_link_iq(to: str, msg_id: str = "") -> str:
     """Stanza IQ para revocar y generar un nuevo enlace de invitación (x14)."""
     mid = msg_id or _generate_msg_id()
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<iq to='{to}' type='set' id='{mid}'>"
         f"<query xmlns='x14'/>"
@@ -286,7 +279,6 @@ def group_set_link_iq(to: str, msg_id: str = "") -> str:
 def group_get_members_iq(to: str, msg_id: str = "") -> str:
     """Stanza IQ para solicitar la lista de miembros de un grupo (x11)."""
     mid = msg_id or _generate_msg_id()
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<iq to='{to}' type='get' id='{mid}'>"
         f"<query xmlns='x11'/>"
@@ -305,8 +297,6 @@ def group_set_members_iq(to: str, affiliations: dict[str, str], msg_id: str = ""
     for phone, role in affiliations.items():
         user_jid = f"{phone}@im.todus.cu"
         users_xml += f"<user affiliation='{role}'>{user_jid}</user>"
-        
-    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<iq to='{to}' type='set' id='{mid}'>"
         f"<query xmlns='x11'>{users_xml}</query>"
