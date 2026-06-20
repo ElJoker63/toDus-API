@@ -28,13 +28,14 @@ def group_file_message(to: str, url: str, file_name: str, file_size: int,
     fid = _generate_msg_id()
     name_esc = util.escape_xml(file_name)
     url_esc = util.escape_xml(url)
+    body_tag = f"<b>{util.escape_xml(caption)}</b>" if caption else "<b/>"
     
     return (
         f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<file xmlns='file:n' i='{fid}' mi='{mid}' n='{name_esc}' "
         f"url='{url_esc}' s='{file_size}' h=''/>"
         f"<k xmlns='x8'/>"
-        f"<b/>"
+        f"{body_tag}"
         f"</m>"
     )
 
@@ -48,6 +49,7 @@ def group_image_message(to: str, url: str, file_name: str, file_size: int,
     name_esc = util.escape_xml(file_name)
     url_esc = util.escape_xml(url)
     tnail = thumbnail if thumbnail else "U6688O?Hr=xu^-w2sp-;,^VZnm-;_3xHMyt5"
+    body_tag = f"<b>{util.escape_xml(caption)}</b>" if caption else "<b/>"
     
     return (
         f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
@@ -55,7 +57,7 @@ def group_image_message(to: str, url: str, file_name: str, file_size: int,
         f"n='{name_esc}' s='{file_size}' h='' w='{width}' he='{height}' "
         f"tnail='{tnail}'/>"
         f"<k xmlns='x8'/>"
-        f"<b/>"
+        f"{body_tag}"
         f"</m>"
     )
 
@@ -67,6 +69,7 @@ def group_video_message(to: str, url: str, video_id: str, file_name: str,
     mid = msg_id or _generate_msg_id()
     name_esc = util.escape_xml(file_name)
     url_esc = util.escape_xml(url)
+    body_tag = f"<b>{util.escape_xml(caption)}</b>" if caption else "<b/>"
     
     return (
         f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
@@ -74,7 +77,7 @@ def group_video_message(to: str, url: str, video_id: str, file_name: str,
         f"s='{file_size}' h='' d='{duration}' n='{name_esc}' "
         f"w='{width}' he='{height}' tnail='{thumbnail}'/>"
         f"<k xmlns='x8'/>"
-        f"<b/>"
+        f"{body_tag}"
         f"</m>"
     )
 
