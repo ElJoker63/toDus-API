@@ -5,6 +5,11 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.5] - 2026-06-20
+
+### Fixed
+- Corregido un test automatizado (`test_upload_avatar_uses_session`) que estaba fallando y bloqueando el despliegue a PyPI debido al cambio previo en la firma de `reserve_upload_url`.
+
 ## [1.4.4] - 2026-06-20
 
 ### Fixed
@@ -145,6 +150,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.4.5]: https://github.com/ElJoker63/toDus-API/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/ElJoker63/toDus-API/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/ElJoker63/toDus-API/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/ElJoker63/toDus-API/compare/v1.4.1...v1.4.2

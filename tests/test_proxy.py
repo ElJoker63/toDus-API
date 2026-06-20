@@ -102,12 +102,12 @@ class TestProxySupport:
             ("https://upload.todus.cu/put_thumb", "https://download.todus.cu/get_thumb")
         ]
         url_idx = 0
-        def mock_reserve(*args, **kwargs):
+        def mock_reserve(self_obj, token, size, file_type, file_name=""):
             nonlocal url_idx
             val = urls[url_idx]
             url_idx += 1
             return val
-        monkeypatch.setattr(client, "reserve_upload_url", mock_reserve)
+        monkeypatch.setattr("todus.client.file.ToDusFileMixin.reserve_upload_url", mock_reserve)
 
         called_urls = []
         class MockResponse:
