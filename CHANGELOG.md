@@ -5,7 +5,7 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
-## [1.5.2] - 2024-06-20
+## [1.5.3] - 2024-06-20
 
 ### Added
 - Soporte para adjuntar `reply_to` a todos los mensajes, permitiendo responder a mensajes específicos.
