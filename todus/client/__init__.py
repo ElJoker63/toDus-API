@@ -100,7 +100,7 @@ class ToDusClient2(ToDusClient):
 
     # --- Mensajería Privada / Grupo (auto-detección) ---
 
-    def send_message(self, to_phone: str, body: str) -> str:
+    def send_message(self, to_phone: str, body: str, reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -116,7 +116,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().edit_message(self._token, to_jid, new_body, original_msg_id)
 
-    def send_file_message(self, to_phone: str, url: str, file_type: FileType, caption: str = "", file_name: str = "", file_size: int = 0) -> str:
+    def send_file_message(self, to_phone: str, url: str, file_type: FileType, caption: str = "", file_name: str = "", file_size: int = 0, reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -124,7 +124,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_file_message(self._token, to_jid, url, file_type, caption, file_name=file_name, file_size=file_size)
 
-    def send_image_message(self, to_phone: str, url: str, file_name: str, file_size: int, width: int = 0, height: int = 0, thumbnail: str = "", caption: str = "") -> str:
+    def send_image_message(self, to_phone: str, url: str, file_name: str, file_size: int, width: int = 0, height: int = 0, thumbnail: str = "", caption: str = "", reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -132,7 +132,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_image_message(self._token, to_jid, url, file_name, file_size, width, height, thumbnail, caption)
 
-    def send_image_message_simple(self, to_phone: str, url: str, file_name: str, file_size: int) -> str:
+    def send_image_message_simple(self, to_phone: str, url: str, file_name: str, file_size: int, reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -140,7 +140,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_image_message_simple(self._token, to_jid, url, file_name, file_size)
 
-    def send_button_message(self, to_phone: str, text: str, buttons: list[dict]) -> str:
+    def send_button_message(self, to_phone: str, text: str, buttons: list[dict], reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -148,7 +148,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_button_message(self._token, to_jid, text, buttons)
 
-    def send_contact_message(self, to_phone: str, contact_id: str, contact_name: str, contact_phone: str) -> str:
+    def send_contact_message(self, to_phone: str, contact_id: str, contact_name: str, contact_phone: str, reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -156,7 +156,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_contact_message(self._token, to_jid, contact_id, contact_name, contact_phone)
 
-    def send_sticker_message(self, to_phone: str, sticker_id: str, sticker_name: str, sticker_pack: str, sticker_hash: str) -> str:
+    def send_sticker_message(self, to_phone: str, sticker_id: str, sticker_name: str, sticker_pack: str, sticker_hash: str, reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -164,7 +164,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_sticker_message(self._token, to_jid, sticker_id, sticker_name, sticker_pack, sticker_hash)
 
-    def send_video_message(self, to_phone: str, url: str, video_id: str, file_name: str, file_size: int, duration: int, width: int, height: int, thumbnail: str, info_text: str = "") -> str:
+    def send_video_message(self, to_phone: str, url: str, video_id: str, file_name: str, file_size: int, duration: int, width: int, height: int, thumbnail: str, info_text: str = "", reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -172,7 +172,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_video_message(self._token, to_jid, url, video_id, file_name, file_size, duration, width, height, thumbnail, info_text=info_text)
 
-    def send_location_message(self, to_phone: str, lat: float, lon: float, zoom: float = 11.0, text: str = "") -> str:
+    def send_location_message(self, to_phone: str, lat: float, lon: float, zoom: float = 11.0, text: str = "", reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):
@@ -180,7 +180,7 @@ class ToDusClient2(ToDusClient):
         to_jid = util.build_jid(to_phone)
         return super().send_location_message(self._token, to_jid, lat, lon, zoom, text)
 
-    def send_event_message(self, to_phone: str, title: str, start: int, end: int, all_day: bool, ics_data: str, event_id: str = "") -> str:
+    def send_event_message(self, to_phone: str, title: str, start: int, end: int, all_day: bool, ics_data: str, event_id: str = "", reply_to: str = "") -> str:
         if not self._token:
             raise AuthenticationError("No autenticado")
         if self._is_group_target(to_phone):

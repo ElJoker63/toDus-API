@@ -1,18 +1,19 @@
 <h1 align="center">📱 toDus-API</h1>
+<center><img src="https://raw.githubusercontent.com/ElJoker63/todus-API/main/examples/avatar.png" width="20%" height="20%"></center>
 
 <p align="center">
-  <a href="https://pypi.org/project/toDus-API/"><img src="https://img.shields.io/pypi/v/todus-api" alt="PyPI"></a>
-  <a href="https://pypi.org/project/toDus-API/"><img src="https://img.shields.io/pypi/pyversions/todus-api" alt="Python"></a>
-  <a href="https://github.com/ElJoker63/toDus-API/actions/workflows/ci.yml"><img src="https://github.com/ElJoker63/toDus-API/actions/workflows/ci.yml/badge.svg?branch=main" alt="Tests"></a>
-  <a href="https://github.com/ElJoker63/toDus-API/actions/workflows/pypi-publish.yml"><img src="https://github.com/ElJoker63/toDus-API/actions/workflows/pypi-publish.yml/badge.svg?branch=main" alt="Publish"></a>
-  <a href="https://eljoker63.github.io/toDus-API"><img src="https://img.shields.io/badge/docs-MkDocs-blueviolet" alt="Docs"></a>
-  <a href="https://github.com/ElJoker63/toDus-API/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
+  <a href="https://pypi.org/project/todus-api/"><img src="https://img.shields.io/pypi/v/todus-api" alt="PyPI"></a>
+  <a href="https://pypi.org/project/todus-api/"><img src="https://img.shields.io/pypi/pyversions/todus-api" alt="Python"></a>
+  <a href="https://github.com/ElJoker63/toDus-API/actions/workflows/ci.yml"><img src="https://github.com/ElJoker63/todus-api/actions/workflows/ci.yml/badge.svg?branch=main" alt="Tests"></a>
+  <a href="https://github.com/ElJoker63/todus-api/actions/workflows/pypi-publish.yml"><img src="https://github.com/ElJoker63/todus-api/actions/workflows/pypi-publish.yml/badge.svg?branch=main" alt="Publish"></a>
+  <a href="https://eljoker63.github.io/todus-api"><img src="https://img.shields.io/badge/docs-MkDocs-blueviolet" alt="Docs"></a>
+  <a href="https://github.com/ElJoker63/todus-api/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
 </p>
 
 <p align="center"><strong>Cliente Python para ToDus (1.5.1)</strong> — la plataforma de mensajería instantánea cubana.</p>
 
 <p align="center">
-  <a href="https://eljoker63.github.io/toDus-API"><b>📖 LEER LA DOCUMENTACIÓN COMPLETA AQUÍ 📖</b></a>
+  <a href="https://eljoker63.github.io/todus-api"><b>📖 LEER LA DOCUMENTACIÓN COMPLETA AQUÍ 📖</b></a>
 </p>
 
 ---
