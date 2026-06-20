@@ -319,6 +319,16 @@ def parse_iq(stanza: str) -> dict:
         match = re.search(r"<error[^>]*>(.*?)</error>", stanza, re.DOTALL)
         if match:
             result["error"] = match.group(1)
+            
+    # Extraer query interno si existe (útil para canales)
+    query_match = re.search(r"<query[^>]*>(.*?)</query>", stanza, re.DOTALL)
+    if query_match:
+        result["query"] = query_match.group(1)
+    else:
+        # En caso de que el query no tenga hijos (e.g. <query .../>) pero tenga atributos
+        query_self_closing = re.search(r"<query([^>]*?)/>", stanza)
+        if query_self_closing:
+            result["query_attrs"] = query_self_closing.group(1)
 
     # Upload URLs
     if _attr(stanza, "put"):

@@ -11,7 +11,7 @@
 <p><strong>Cliente Python para ToDus</strong> — la plataforma de mensajería instantánea cubana. Soporta chat privado, grupos MUC Light, archivos, imágenes, videos, stickers, botones interactivos y más.</p>
 
 <ul>
-  <li><strong>Versión:</strong> 1.4.5</li>
+  <li><strong>Versión:</strong> 1.4.6</li>
   <li><strong>Python:</strong> >= 3.11</li>
   <li><strong>Autor:</strong> ElJoker63</li>
   <li><strong>Licencia:</strong> MIT</li>
@@ -227,6 +227,43 @@ def on_message(msg):
 client.add_message_listener(on_message)
 </code></pre>
 
+</pre>
+
+<hr>
+
+<h2>📢 Canales de ToDus</h2>
+
+<p>La versión 1.4.6 incluye soporte nativo completo para interactuar con canales de ToDus usando el protocolo XMPP interno.</p>
+
+<pre><code># Obtener lista de mis canales suscritos o administrados
+client.get_my_channels()
+
+# Crear un nuevo canal
+client.create_channel(
+    name="Canal de Mi Bot",
+    link="bot_canal_oficial",  # sin el @
+    public=1,
+    desc="Este es el canal oficial de mi bot",
+    picture="url_de_la_foto_subida"
+)
+
+# Obtener información de un canal
+client.get_channel_info("bot_canal_oficial")
+
+# Publicar un mensaje en el canal
+# Se requiere enviar la stanza XML completa de la publicación
+channel_jid = "bot_canal_oficial@ch.todus.cu"
+msg_xml = "&lt;message&gt;&lt;b&gt;¡Hola a todos los suscriptores!&lt;/b&gt;&lt;/message&gt;"
+client.publish_to_channel(channel_jid, msg_xml)
+
+# Obtener el historial de publicaciones (paginado)
+client.get_channel_publications(channel_jid, limit=25)
+
+# Suscribirse y desuscribirse
+client.subscribe_channel("todus_oficial")
+client.leave_channel("todus_oficial")
+</code></pre>
+
 <hr>
 
 <h2>📤 Subir y Descargar Archivos</h2>
@@ -273,11 +310,13 @@ print(f"Descargado {size} bytes en {path}")</code></pre>
 │   │   ├── auth.py            # Autenticación SMS/JWT
 │   │   ├── message.py         # Envío/recepción de mensajes
 │   │   ├── file.py            # Subida/descarga de archivos
-│   │   └── profile.py         # Perfil de usuario
+│   │   ├── profile.py         # Perfil de usuario
+│   │   └── channels.py        # Canales de ToDus
 │   ├── stanzas/               # Generadores de stanzas XML
 │   │   ├── __init__.py
 │   │   ├── private.py         # Chat privado
 │   │   ├── group.py           # Chat grupal
+│   │   ├── channels.py        # Canales
 │   │   ├── presence.py        # Presencia XMPP
 │   │   └── utils.py           # Utilidades de protocolo
 │   ├── group.py               # Cliente de grupos MUC Light
@@ -292,7 +331,10 @@ print(f"Descargado {size} bytes en {path}")</code></pre>
 │   ├── test_types.py
 │   └── test_stanzas.py
 ├── examples/                  # Ejemplos de uso
-│   └── bot.py
+│   ├── bot.py
+│   ├── send_grupo_admin.py
+│   ├── update_profile.py
+│   └── channels_example.py
 ├── .github/workflows/         # CI/CD
 │   ├── ci.yml                 # Tests en push/PR
 │   └── pypi-publish.yml       # Publicación a PyPI

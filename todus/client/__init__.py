@@ -11,6 +11,7 @@ from .auth import ToDusAuthMixin
 from .message import ToDusMessageMixin
 from .file import ToDusFileMixin
 from .profile import ToDusProfileMixin
+from .channels import ToDusChannelMixin
 from ..errors import AuthenticationError, TokenExpiredError, ConnectionLostError
 from ..types import FileType
 from .. import util
@@ -23,6 +24,7 @@ class ToDusClient(
     ToDusMessageMixin,
     ToDusFileMixin,
     ToDusProfileMixin,
+    ToDusChannelMixin,
     ToDusClientBase,
 ):
     """Cliente stateless para la API de ToDus unificado."""

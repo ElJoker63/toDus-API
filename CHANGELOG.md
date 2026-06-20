@@ -5,6 +5,21 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.6] - 2026-06-20
+
+### Added
+- Implementación base completa de **Canales de ToDus**. Se incluyó el mixin `ToDusChannelMixin` con funciones nativas XMPP (`todus:ch:*`) para gestionar canales:
+  - `create_channel`: Permite crear nuevos canales.
+  - `get_my_channels`: Lista los canales del usuario.
+  - `get_channel_info`: Obtiene la información del canal por su enlace.
+  - `publish_to_channel`: Publica mensajes XML nativos en canales.
+  - `get_channel_publications`: Obtiene los últimos mensajes (paginación de historial).
+  - `subscribe_channel` y `leave_channel`: Gestión de membresía de canal.
+- El parser interno `parse_iq` ahora intercepta nativamente los elementos `<query>` que devuelven información compleja (como historiales y propiedades de canales) para su fácil extracción.
+
+### Fixed
+- Solucionado el problema en la actualización del perfil (nombre/alias se convertía en `~`). Ahora se aconseja empaquetar en una misma llamada a `update_profile` todos los atributos que se desean mantener. Se agregó el parámetro opcional `thumbnail_url` faltante en los ejemplos.
+
 ## [1.4.5] - 2026-06-20
 
 ### Fixed
@@ -150,6 +165,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.4.6]: https://github.com/ElJoker63/toDus-API/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/ElJoker63/toDus-API/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/ElJoker63/toDus-API/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/ElJoker63/toDus-API/compare/v1.4.2...v1.4.3
