@@ -5,6 +5,12 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.4.2] - 2026-06-20
+
+### Changed
+- Reescrito el método `update_profile` del `ToDusProfileMixin` para funcionar con la API REST actual. Ahora utiliza payloads construidos manualmente en Protobuf hacia el endpoint `v2/todus/users.me` en lugar de JSON, reparando finalmente la funcionalidad de actualizar perfil (nombre, biografía y foto).
+- Se modificó la inyección del token JWT en el cliente de perfiles para ajustarse al estándar esperado por `auth.todus.cu` (sin el prefijo `Bearer`).
+
 ## [1.4.1] - 2026-06-20
 
 ### Added
@@ -129,6 +135,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.4.2]: https://github.com/ElJoker63/toDus-API/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/ElJoker63/toDus-API/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/ElJoker63/toDus-API/compare/v1.3.9...v1.4.0
 [1.3.9]: https://github.com/ElJoker63/toDus-API/compare/v1.3.8...v1.3.9

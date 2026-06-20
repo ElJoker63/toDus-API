@@ -8,25 +8,67 @@ class ToDusProfileMixin:
     # --- Perfil ---
 
     def update_profile(self, token: str, alias: str = "", bio: str = "", picture_url: str = "", thumbnail_url: str = "") -> bool:
+        def encode_varint(value: int) -> bytes:
+            result = bytearray()
+            while True:
+                byte = value & 0x7F
+                value >>= 7
+                if value:
+                    result.append(byte | 0x80)
+                else:
+                    result.append(byte)
+                    break
+            return bytes(result)
+
+        def build_map_entry(key: str, value: str) -> bytes:
+            key_bytes = key.encode("utf-8")
+            value_bytes = value.encode("utf-8")
+            entry = bytearray()
+            entry.append(0x0A)
+            entry.extend(encode_varint(len(key_bytes)))
+            entry.extend(key_bytes)
+            entry.append(0x12)
+            entry.extend(encode_varint(len(value_bytes)))
+            entry.extend(value_bytes)
+            result = bytearray()
+            result.append(0x0A)
+            result.extend(encode_varint(len(entry)))
+            result.extend(entry)
+            return bytes(result)
+
         headers = {
             "Authorization": token,
-            "Content-Type": "application/json",
+            "User-Agent": "ToDus 2.1.2 Auth",
+            "Content-Type": "application/x-protobuf",
         }
-        payload = {
-            "alias": alias,
-            "description": bio,
-            "picture_url": picture_url,
-            "picture_thumbnail_url": thumbnail_url,
-        }
+        
+        payload = bytearray()
+        if alias:
+            payload.extend(build_map_entry("alias", alias))
+        if bio:
+            payload.extend(build_map_entry("description", bio))
+        if picture_url:
+            payload.extend(build_map_entry("picture_url", picture_url))
+        if thumbnail_url:
+            payload.extend(build_map_entry("picture_thumbnail_url", thumbnail_url))
+            
+        if not payload:
+            return False
+
         try:
             resp = self.session.post(
-                "https://auth.todus.cu/v2/todus/users.me.json",
-                json=payload,
+                "https://auth.todus.cu/v2/todus/users.me",
+                data=bytes(payload),
                 headers=headers,
                 timeout=30,
             )
-            return resp.status_code == 200
-        except Exception:
+            resp.raise_for_status()
+            return True
+        except Exception as e:
+            import logging
+            logging.error(f"Error updating profile: {e}")
+            if hasattr(e, 'response') and e.response is not None:
+                logging.error(e.response.text)
             return False
 
     def upload_avatar(self, token: str, image_data: bytes, thumbnail_data: bytes = None) -> tuple[str, str]:

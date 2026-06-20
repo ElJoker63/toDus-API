@@ -11,7 +11,7 @@
 <p><strong>Cliente Python para ToDus</strong> — la plataforma de mensajería instantánea cubana. Soporta chat privado, grupos MUC Light, archivos, imágenes, videos, stickers, botones interactivos y más.</p>
 
 <ul>
-  <li><strong>Versión:</strong> 1.4.1</li>
+  <li><strong>Versión:</strong> 1.4.2</li>
   <li><strong>Python:</strong> >= 3.11</li>
   <li><strong>Autor:</strong> ElJoker63</li>
   <li><strong>Licencia:</strong> MIT</li>
@@ -97,6 +97,20 @@ client.send_image_message(
     file_size=len(image_data),
     caption="Mi foto"
 )</code></pre>
+
+<h3>Actualizar tu Perfil</h3>
+
+<pre><code># Cambiar nombre a mostrar (alias) y biografía (description)
+client.update_profile(
+    alias="Mi Bot Genial",
+    bio="¡Hola! Soy un bot escrito en Python.",
+)
+
+# Cambiar foto de perfil (requiere subirla primero)
+with open("avatar.jpg", "rb") as f:
+    avatar_url, thumb_url = client.upload_avatar_from_file("avatar.jpg")
+    client.update_profile(picture_url=avatar_url, thumbnail_url=thumb_url)
+</code></pre>
 
 <h3>Escuchar mensajes entrantes</h3>
 
