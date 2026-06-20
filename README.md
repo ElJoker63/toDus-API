@@ -13,7 +13,7 @@
 <p align="center"><strong>Cliente Python para ToDus (1.5.3)</strong> — la plataforma de mensajería instantánea cubana.</p>
 
 <p align="center">
-  <a href="https://eljoker63.github.io/todus-api"><b>📖 LEER LA DOCUMENTACIÓN COMPLETA AQUÍ 📖</b></a>
+  <a href="https://eljoker63.github.io/toDus-API"><b>📖 LEER LA DOCUMENTACIÓN COMPLETA AQUÍ 📖</b></a>
 </p>
 
 ---
