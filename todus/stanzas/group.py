@@ -14,7 +14,7 @@ def group_message(to: str, body: str, msg_id: str = "") -> str:
     mid = msg_id or _generate_msg_id()
     body_esc = util.escape_xml(body)
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"<b>{body_esc}</b>"
         f"</m>"
@@ -31,7 +31,7 @@ def group_file_message(to: str, url: str, file_name: str, file_size: int,
     body_tag = f"<b>{util.escape_xml(caption)}</b>" if caption else "<b/>"
     
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<file xmlns='file:n' i='{fid}' mi='{mid}' n='{name_esc}' "
         f"url='{url_esc}' s='{file_size}' h=''/>"
         f"<k xmlns='x8'/>"
@@ -52,7 +52,7 @@ def group_image_message(to: str, url: str, file_name: str, file_size: int,
     body_tag = f"<b>{util.escape_xml(caption)}</b>" if caption else "<b/>"
     
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<image xmlns='image:n' i='{fid}' mi='{mid}' url='{url_esc}' "
         f"n='{name_esc}' s='{file_size}' h='' w='{width}' he='{height}' "
         f"tnail='{tnail}'/>"
@@ -72,7 +72,7 @@ def group_video_message(to: str, url: str, video_id: str, file_name: str,
     body_tag = f"<b>{util.escape_xml(caption)}</b>" if caption else "<b/>"
     
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<video xmlns='video:n' i='{video_id}' mi='{mid}' url='{url_esc}' "
         f"s='{file_size}' h='' d='{duration}' n='{name_esc}' "
         f"w='{width}' he='{height}' tnail='{thumbnail}'/>"
@@ -91,7 +91,7 @@ def group_sticker_message(to: str, sticker_id: str, sticker_name: str,
     pack_esc = util.escape_xml(sticker_pack)
     
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<sticker xmlns='sticker:n' i='{sticker_id}' mi='{mid}' "
         f"n='{name_esc}' f='{pack_esc}' url='' s='0' h='{sticker_hash}' json=''/>"
         f"<k xmlns='x8'/>"
@@ -107,7 +107,7 @@ def group_contact_message(to: str, contact_id: str, contact_name: str,
     name_esc = util.escape_xml(contact_name)
     
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<contact xmlns='contact:n' i='{contact_id}' mi='{mid}' "
         f"n='{name_esc}' num='{contact_phone}'/>"
         f"<k xmlns='x8'/>"
@@ -123,7 +123,7 @@ def group_edit_message(to: str, new_body: str, original_msg_id: str,
     body_esc = util.escape_xml(new_body)
     
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{original_msg_id}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{original_msg_id}' xmlns='jc'>"
         f"<edited xmlns='edited:n' i='{eid}' mi='{original_msg_id}'/>"
         f"<k xmlns='x8'/>"
         f"<b>{body_esc}</b>"
@@ -137,7 +137,7 @@ def group_delete_message(to: str, message_id: str, msg_id: str = "", body: str =
     did = _generate_msg_id()
     body_xml = f"<b>{util.escape_xml(body)}</b>" if body or not media_xml else "<b/>"
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"{media_xml}"
         f"<deleted xmlns='deleted:n' i='{did}' mi='{message_id}'/>"
         f"<k xmlns='x8'/>"
@@ -152,7 +152,7 @@ def group_location_message(to: str, lat: float, lon: float, zoom: float = 11.0, 
     lid = _generate_msg_id()
     text_esc = util.escape_xml(text)
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<location xmlns='location:n' i='{lid}' mi='{mid}' lat='{lat}' lon='{lon}' z='{zoom}' t='{text_esc}'/>"
         f"<k xmlns='x8'/>"
         f"<b/>"
@@ -168,7 +168,7 @@ def group_event_message(to: str, event_id: str, title: str, start: int, end: int
     title_esc = util.escape_xml(title)
     ics_esc = util.escape_xml(ics_data)
     return (
-        f"<m xml:lang='en' o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<m to='{to}' t='gc' i='{mid}' xmlns='jc'>"
         f"<event xmlns='event:n' i='{eid}' mi='{mid}' ti='{title_esc}' s='{start}' e='{end}' ad='{ad_str}'>"
         f"<ics>{ics_esc}</ics>"
         f"</event>"

@@ -5,6 +5,12 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.9] - 2026-06-20
+
+### Fixed
+- Corregida la generación de stanzas salientes (tanto en mensajes de grupo `group.py` como `private.py`), cambiando el atributo `o='{to}'` por el correcto `to='{to}'`. Esto resuelve problemas donde los mensajes no se enrutaban o no se mostraban correctamente al enviar contenidos a los grupos.
+- Añadido el atributo faltante `xmlns='jc'` en `video_message` de los chats privados.
+
 ## [1.3.8] - 2026-06-20
 
 ### Fixed
@@ -104,6 +110,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.3.9]: https://github.com/ElJoker63/toDus-API/compare/v1.3.8...v1.3.9
 [1.3.8]: https://github.com/ElJoker63/toDus-API/compare/v1.3.7...v1.3.8
 [1.3.7]: https://github.com/ElJoker63/toDus-API/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/ElJoker63/toDus-API/compare/v1.3.5...v1.3.6
