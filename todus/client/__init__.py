@@ -34,8 +34,8 @@ class ToDusClient2(ToDusClient):
 
     def __init__(self, phone_number: str, password: str = "", proxy: str | None = None, **kwargs) -> None:
         super().__init__(proxy=proxy, **kwargs)
-        self.phone_number = phone_number
-        self.password = password
+        self.phone_number = util.normalize_phone(phone_number) if phone_number else ""
+        self.password = password.strip() if password else ""
         self._token = ""
         self._group_client = None
 

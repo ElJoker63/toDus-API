@@ -8,6 +8,7 @@ class ToDusAuthMixin:
     """Mixin que contiene los métodos de autenticación HTTP de ToDus."""
 
     def request_code(self, phone_number: str) -> None:
+        phone = util.normalize_phone(phone_number)
         headers = {
             "Host": "auth.todus.cu",
             "User-Agent": "ToDus " + self.version_name + " Auth",
@@ -15,7 +16,7 @@ class ToDusAuthMixin:
         }
         data = (
             bytes([0x0A, 0x0A])
-            + phone_number.encode()
+            + phone.encode()
             + bytes([0x12, 0x96, 0x01])
             + util.generate_token(150).encode()
         )
@@ -28,18 +29,21 @@ class ToDusAuthMixin:
         resp.raise_for_status()
 
     def validate_code(self, phone_number: str, code: str) -> str:
+        phone = util.normalize_phone(phone_number)
+        code = code.strip()
         headers = {
             "Host": "auth.todus.cu",
             "User-Agent": "ToDus " + self.version_name + " Auth",
             "Content-Type": "application/x-protobuf",
         }
+        code_bytes = code.encode()
         data = (
             bytes([0x0A, 0x0A])
-            + phone_number.encode()
+            + phone.encode()
             + bytes([0x12, 0x96, 0x01])
             + util.generate_token(150).encode()
-            + bytes([0x1A, 0x06])
-            + code.encode()
+            + bytes([0x1A, len(code_bytes)])
+            + code_bytes
         )
         resp = self.session.post(
             "https://auth.todus.cu/v2/auth/users.register",
@@ -62,20 +66,24 @@ class ToDusAuthMixin:
             return "".join(c for c in raw if c in string.printable and c not in "\r\n")[:96]
 
     def login(self, phone_number: str, password: str) -> str:
+        phone = util.normalize_phone(phone_number)
+        password = password.strip()
         headers = {
             "Host": "auth.todus.cu",
             "user-agent": "ToDus " + self.version_name + " Auth",
             "content-type": "application/x-protobuf",
         }
+        password_bytes = password.encode()
+        version_bytes = self.version_code.encode()
         data = (
             bytes([0x0A, 0x0A])
-            + phone_number.encode()
+            + phone.encode()
             + bytes([0x12, 0x96, 0x01])
             + util.generate_token(150).encode()
-            + bytes([0x12, 0x60])
-            + password.encode()
-            + bytes([0x1A, 0x05])
-            + self.version_code.encode()
+            + bytes([0x12, len(password_bytes)])
+            + password_bytes
+            + bytes([0x1A, len(version_bytes)])
+            + version_bytes
         )
         resp = self.session.post(
             "https://auth.todus.cu/v2/auth/token",

@@ -5,6 +5,12 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.7] - 2026-06-20
+
+### Fixed
+- Normalizado automáticamente el número de teléfono y eliminados espacios/saltos de línea accidentales del token/password en `ToDusClient2` y los métodos del mixin de autenticación.
+- Corregida la serialización de payload protobuf en la autenticación para calcular dinámicamente el tamaño de los campos de texto en lugar de usar longitudes fijas de bytes, evitando fallos `400 Bad Request` ante caracteres extraños (como retornos de carro `\r` generados por archivos `.env` con formato CRLF en Docker).
+
 ## [1.3.6] - 2026-06-20
 
 ### Fixed
@@ -90,6 +96,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.3.7]: https://github.com/ElJoker63/toDus-API/compare/v1.3.6...v1.3.7
 [1.3.6]: https://github.com/ElJoker63/toDus-API/compare/v1.3.5...v1.3.6
 [1.3.5]: https://github.com/ElJoker63/toDus-API/compare/v1.3.4...v1.3.5
 [1.3.4]: https://github.com/ElJoker63/toDus-API/compare/v1.3.3...v1.3.4
