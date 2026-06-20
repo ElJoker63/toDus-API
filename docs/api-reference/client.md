@@ -15,6 +15,7 @@ Inicializa el cliente de ToDus.
 - `password` *(str, opcional)*: La contraseña si usas la API no oficial de ToDus (legacy).
 - `token` *(str, opcional)*: El token JWT si lo extrajiste de la app oficial. Se requiere uno de los dos (password o token).
 - `proxy` *(dict, opcional)*: Diccionario con credenciales SOCKS5 para conectarse a través de un proxy corporativo (útil en Cuba).
+- `verify_ssl` *(bool, opcional)*: Verifica la seguridad y los certificados SSL de la conexión (por defecto `True`). Puedes desactivarlo con `False` si experimentas fallos de certificado en tu red local.
 
 **Ejemplo de Proxy:**
 ```python
