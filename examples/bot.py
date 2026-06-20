@@ -10,7 +10,7 @@ Configura tus credenciales en las variables de entorno:
 
 import os
 import logging
-from todus import ToDusClient2
+from todus import ToDusClient2, __version__
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("bot")
@@ -57,7 +57,7 @@ def main():
         if body.strip().lower() == "/info":
             client.send_message(
                 sender,
-                "Bot de ejemplo usando toDus-API v1.3.3\n"
+                f"Bot de ejemplo usando toDus-API v{__version__}\n"
                 "Soporta mensajes, archivos, imágenes, videos y grupos."
             )
             return

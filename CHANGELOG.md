@@ -5,6 +5,14 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.3.5] - 2026-06-20
+
+### Fixed
+- Corregidos y optimizados los badges del `README.md` para dar soporte a repositorios privados utilizando badges nativos de GitHub Actions y un badge estático para la licencia.
+
+### Changed
+- Migrado el flujo de publicación de PyPI en GitHub Actions a Trusted Publishing (OIDC) para evitar fallos de autenticación con tokens y simplificar el proceso.
+
 ## [1.3.4] - 2026-06-20
 
 ### Fixed
@@ -76,6 +84,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Manejo de excepciones personalizadas
 - Constantes del protocolo ToDus
 
+[1.3.5]: https://github.com/ElJoker63/toDus-API/compare/v1.3.4...v1.3.5
 [1.3.4]: https://github.com/ElJoker63/toDus-API/compare/v1.3.3...v1.3.4
 [1.3.3]: https://github.com/ElJoker63/toDus-API/compare/v1.3.2...v1.3.3
 [1.3.2]: https://github.com/ElJoker63/toDus-API/compare/v1.3.1...v1.3.2
