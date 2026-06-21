@@ -10,7 +10,7 @@
   <a href="https://github.com/ElJoker63/todus-api/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
 </p>
 
-<p align="center"><strong>Cliente Python para ToDus (1.5.5)</strong> — la plataforma de mensajería instantánea cubana.</p>
+<p align="center"><strong>Cliente Python para ToDus</strong> — la plataforma de mensajería instantánea cubana.</p>
 
 <p align="center">
   <a href="https://eljoker63.github.io/toDus-API"><b>📖 LEER LA DOCUMENTACIÓN COMPLETA AQUÍ 📖</b></a>
