@@ -61,4 +61,5 @@ nav:
     - Perfil y Presencia: api-reference/profile_presence.md
     - Estados (Historias): api-reference/status.md
     - Bloqueos y Privacidad: api-reference/blocks_privacy.md
-    - Avanzado (Ubicación, Llamadas, Last): api-reference/advanced.md
+    - Llamadas (WebRTC): api-reference/calls.md
+    - Avanzado (Ubicación, Last): api-reference/advanced.md

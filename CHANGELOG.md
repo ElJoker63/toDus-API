@@ -5,6 +5,12 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.4] - 2026-06-20
+### Agregado
+- ✨ **Soporte de Llamadas WebRTC (Señalización):** Integrada la API `CallMixin` para realizar negociaciones de llamadas P2P mediante `CallStatusIQ` (`todus:call:status`).
+- ✨ **Servidores TURN:** Capacidad para solicitar credenciales de STUN/TURN oficiales con `request_turn_credentials()` (`todus:turn:cred`).
+- 📝 Ejemplos de código y documentación de las nuevas funcionalidades de llamadas en la API Reference.
+
 ## [1.5.3] - 2024-06-20
 
 ### Added

@@ -1,25 +1,37 @@
-"""Generadores de stanzas para Llamadas (Calls) de ToDus."""
+from todus.stanzas.utils import build_iq
 
-from .utils import build_iq
-
-TURN_JID = "xxxx@im.todus.cu"  # Generalmente el servidor TURN de ToDus
-
-def get_turn_credentials(user_jid: str) -> str:
-    """Solicita credenciales TURN para iniciar conexión P2P."""
-    # ToDus usa tturn@im.todus.cu para turn, a veces. Verificamos con el TURN_JID.
-    query = f"<query xmlns='todus:turn:cred' userId='{user_jid}'/>"
-    return build_iq("get", "tturn@im.todus.cu", query)
-
-def send_call_status(to_user: str, from_user: str, status: str, content: str = "") -> str:
+def get_turn_credentials_iq(user_id: str) -> str:
     """
-    Envía una actualización de estado de llamada (señalización).
-    
+    Genera un IQ para solicitar credenciales temporales de TURN al servidor.
+
     Args:
-        to_user: JID destino.
-        from_user: JID origen.
-        status: Tipo de estado ('start', 'pickup', 'end', 'reject', etc).
-        content: Información adicional (ej. SDP de WebRTC o motivo de fin).
+        user_id (str): El JID o ID del usuario (típicamente uno mismo, e.g. '5350000000@im.todus.cu' o '5350000000').
+
+    Returns:
+        str: El XML de la stanza.
     """
+    if not user_id.endswith("@im.todus.cu"):
+        user_id = f"{user_id}@im.todus.cu"
+        
+    query = "<query xmlns='todus:turn:cred'/>"
+    return build_iq("get", user_id, query)
+
+def call_status_iq(to_user: str, from_user: str, status: str, content: str = "{}") -> str:
+    """
+    Genera un IQ para enviar eventos de señalización de WebRTC (Call Status).
+
+    Args:
+        to_user (str): Número del usuario destino (ej. '5350000000').
+        from_user (str): Número del usuario origen (ej. '5351111111').
+        status (str): Estado de la llamada ('CALL', 'PICKED', 'END', 'offer', 'answer', 'ice-candidate').
+        content (str, opcional): Payload de la señalización (JSON con SDP o ICE).
+
+    Returns:
+        str: El XML de la stanza.
+    """
+    to_jid = f"{to_user}@im.todus.cu" if not to_user.endswith("@im.todus.cu") else to_user
+    
+    # Limpiamos los JID para los atributos internos (generalmente ToDus usa 'numero' a secas o 'numero@im.todus.cu', mantenemos el valor limpio)
     query = (
         f"<query xmlns='todus:call:status' "
         f"to_user='{to_user}' "
@@ -27,5 +39,4 @@ def send_call_status(to_user: str, from_user: str, status: str, content: str = "
         f"status='{status}' "
         f"content='{content}'/>"
     )
-    # En la APK usan jid.domain() o 'xxxx@im.todus.cu'
-    return build_iq("set", "xxxx@im.todus.cu", query)
+    return build_iq("set", to_jid, query)
