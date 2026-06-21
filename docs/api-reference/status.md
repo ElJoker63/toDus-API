@@ -21,5 +21,5 @@ client.publish_status(estado)
 
 - `follow_user(phone_number)`: Comienza a seguir las historias de alguien. Te empezarán a llegar por medio del decorador `@client.on_status` si lo defines.
 - `unfollow_user(phone_number)`: Deja de seguir las historias de un usuario.
-- `get_followers()`: Pide a la API de ToDus la lista de personas que pueden ver tus historias publicadas.
-- `get_following()`: Pide a la API la lista de personas a las que sigues.
+- `get_followers()`: Pide a la API de ToDus la lista de personas que pueden ver tus historias publicadas. Retorna de forma síncrona una lista con los números de teléfono (ej. `['5351234567', ...]`).
+- `get_following()`: Pide a la API la lista de personas a las que sigues. Retorna de forma síncrona una lista con los números de teléfono.

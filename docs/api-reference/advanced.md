@@ -5,7 +5,7 @@ Estas funcionalidades corresponden a elementos menos comunes o que actúan sobre
 ## Última Conexión (Last Seen)
 
 ### `get_last_seen(phone_number)`
-Envía una petición al servidor para averiguar la marca de tiempo de la última vez que un usuario estuvo en línea. La respuesta asíncrona la entregará el servidor en un mensaje entrante que puedes capturar.
+Envía una petición al servidor y espera síncronamente la respuesta para averiguar la marca de tiempo de la última vez que un usuario estuvo en línea. Devuelve un diccionario con el valor, por ejemplo: `{"seconds": "1718841234"}`.
 
 ## Ubicación (Personas Cerca)
 
@@ -21,7 +21,7 @@ client.set_location(23.1136, -82.3666)  # Coordenadas de La Habana
 Revoca temporalmente tu visibilidad geográfica.
 
 ### `get_people_near(limit, offset)`
-Pide a ToDus la lista de personas que se encuentren físicamente cerca de tu posición reportada más reciente.
+Pide a ToDus la lista de personas que se encuentren físicamente cerca de tu posición reportada más reciente. Devuelve de forma síncrona una lista de diccionarios, cada uno conteniendo el número de teléfono y JID de las personas cercanas.
 
 ---
 

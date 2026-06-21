@@ -34,4 +34,4 @@ client.block_user("5350000000")
 Desbloquea a un usuario previamente bloqueado.
 
 ### `get_block_list()`
-Obtiene la lista completa de todos los usuarios que tienes bloqueados.
+Obtiene la lista completa de todos los usuarios que tienes bloqueados. Retorna de forma síncrona una lista de cadenas con los números de teléfono bloqueados.
