@@ -5,6 +5,12 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.6] - 2026-06-21
+### Fixed
+- 📝 **Documentación MkDocs**: Se actualizaron las referencias de la API en `status.md`, `advanced.md` y `blocks_privacy.md` para reflejar correctamente los retornos síncronos de los métodos `get_`.
+- 🔒 **Seguridad en tests**: Removidas las credenciales de prueba expuestas en los scripts de `examples/`.
+- 📖 **README**: Eliminada la versión estática del texto introductorio para basarse únicamente en los badges de PyPI dinámicos.
+
 ## [1.5.5] - 2026-06-21
 ### Changed
 - 🚀 **Funciones síncronas por defecto**: Se actualizaron todos los métodos `get_` (`get_followers`, `get_profile_privacy`, `get_last_seen`, `get_people_near`, `get_block_list`, etc.) para que envíen la petición IQ y esperen síncronamente la respuesta, parseando la información en objetos útiles (listas, diccionarios) en lugar de devolver el ID interno del paquete. 
