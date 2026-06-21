@@ -1,8 +1,8 @@
 import os
 from todus.client import ToDusClient2
 
-PHONE = "5351000668"
-PASSWORD = "vivir la vida como quieres y con quién quieres es una bendición. Mientras no sea una mentira \n"
+PHONE = os.getenv("TODUS_PHONE")
+PASSWORD = os.getenv("TODUS_PASSWORD")
 
 client = ToDusClient2(PHONE, PASSWORD)
 client.login()
