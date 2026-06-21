@@ -29,14 +29,14 @@ def unfollow_user(uid: str) -> str:
     query = f"<query xmlns='td:status:unfollow' unfollow_to='{uid}'/>"
     return build_iq("set", STATUS_JID, query)
 
-def get_followers(uid: str, limit: int = 20) -> str:
+def get_followers(uid: str, limit: int = 20, offset: int = 0) -> str:
     """Obtiene la lista de usuarios que siguen los estados de uid."""
-    query = f"<query xmlns='td:status:followers' user_jid='{uid}' limit='{limit}'/>"
+    query = f"<query xmlns='td:status:followers' user_jid='{uid}' limit='{limit}' offset='{offset}'/>"
     return build_iq("get", STATUS_JID, query)
 
-def get_following(uid: str, limit: int = 20) -> str:
+def get_following(uid: str, limit: int = 20, offset: int = 0) -> str:
     """Obtiene la lista de usuarios cuyos estados sigue uid."""
-    query = f"<query xmlns='td:status:following' user_jid='{uid}' limit='{limit}'/>"
+    query = f"<query xmlns='td:status:following' user_jid='{uid}' limit='{limit}' offset='{offset}'/>"
     return build_iq("get", STATUS_JID, query)
 
 def get_follower_info(uid: str) -> str:

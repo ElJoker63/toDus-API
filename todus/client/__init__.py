@@ -80,6 +80,14 @@ class ToDusClient2(ToDusClient):
         return bool(self._token)
 
     @property
+    def jid(self) -> str:
+        """JID asociado al cliente, basado en el número de teléfono."""
+        if self.phone_number:
+            from .. import util
+            return util.build_jid(self.phone_number)
+        return ""
+
+    @property
     def groups(self):
         """Acceso al cliente de grupos MUC Light."""
         if self._group_client is None:
@@ -97,6 +105,62 @@ class ToDusClient2(ToDusClient):
 
     def validate_code(self, code: str) -> None:
         self.password = super().validate_code(self.phone_number, code)
+
+    def send_stanza(self, stanza_str: str) -> str:
+        """
+        Envía una stanza XML genérica usando el token actual.
+        Utilizada por mixins stateful (status, privacy, etc).
+        Retorna el ID de la stanza si está presente, o string vacío.
+        """
+        if not self._token:
+            from ..errors import AuthenticationError
+            raise AuthenticationError("No autenticado")
+        with self._xmpp_session(self._token) as sock:
+            sock.send(stanza_str.encode())
+        
+        import re
+        match = re.search(r" i='([^']+)'", stanza_str)
+        if match:
+            return match.group(1)
+        return ""
+
+    def send_iq_and_wait(self, stanza_str: str) -> dict:
+        """
+        Envía una stanza IQ y espera síncronamente su respuesta en el mismo socket.
+        Útil para llamadas que devuelven datos inmediatamente (como followers).
+        """
+        if not self._token:
+            from ..errors import AuthenticationError
+            raise AuthenticationError("No autenticado")
+            
+        import re
+        match = re.search(r" i='([^']+)'", stanza_str)
+        iq_id = match.group(1) if match else ""
+        
+        from ..parser import extract_all_stanzas, parse_iq
+        
+        with self._xmpp_session(self._token) as sock:
+            sock.send(stanza_str.encode())
+            if not iq_id:
+                return {}
+                
+            while True:
+                response = self._recv_all(sock)
+                if response is None:
+                    from ..errors import ConnectionLostError
+                    raise ConnectionLostError("Conexión perdida esperando IQ")
+                if response == "":
+                    continue
+                
+                if f"i='{iq_id}'" in response:
+                    stanzas = extract_all_stanzas(response)
+                    for iq_str in stanzas.get("iqs", []):
+                        if f"i='{iq_id}'" in iq_str:
+                            return parse_iq(iq_str)
+                    
+                    if "t='result'" in response or "t='error'" in response:
+                        return parse_iq(response)
+        return {}
 
     # --- Mensajería Privada / Grupo (auto-detección) ---
 

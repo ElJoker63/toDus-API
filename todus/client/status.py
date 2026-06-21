@@ -38,17 +38,17 @@ class ToDusStatusMixin:
         stanza = status.delete_status(status_id)
         return self.send_stanza(stanza)
 
-    def get_status(self, status_id: str) -> str:
+    def get_status(self, status_id: str) -> dict:
         """
-        Obtiene un estado específico.
+        Obtiene un estado específico de forma síncrona.
         
         Args:
             status_id: ID del estado a consultar.
         Returns:
-            El msg_id de la petición. El resultado asíncrono vendrá en on_message.
+            Un diccionario con los datos del estado.
         """
         stanza = status.get_status(status_id)
-        return self.send_stanza(stanza)
+        return self.send_iq_and_wait(stanza)
 
     def follow_user(self, phone_number: str) -> str:
         """
@@ -76,43 +76,61 @@ class ToDusStatusMixin:
         stanza = status.unfollow_user(uid)
         return self.send_stanza(stanza)
 
-    def get_followers(self, phone_number: str = "", limit: int = 20) -> str:
+    def get_followers(self, phone_number: str = "", limit: int = 20, offset: int = 0) -> list[str]:
         """
-        Obtiene la lista de seguidores de un usuario. Si no se indica teléfono, asume el usuario actual.
+        Obtiene de forma síncrona la lista de seguidores de un usuario.
         
         Args:
             phone_number: Número de teléfono (opcional, por defecto el propio).
             limit: Cantidad de resultados por página.
+            offset: Desplazamiento para paginación.
         Returns:
-            El msg_id de la petición.
+            Una lista con los números de teléfono de los seguidores.
         """
         uid = util.build_jid(phone_number) if phone_number else self.jid
-        stanza = status.get_followers(uid, limit)
-        return self.send_stanza(stanza)
+        stanza = status.get_followers(uid, limit, offset)
+        res = self.send_iq_and_wait(stanza)
+        
+        query = res.get("query_attrs", "") or res.get("query", "")
+        import re
+        match = re.search(r"result='([^']*)'", query)
+        if match and match.group(1):
+            jids = match.group(1).split(",")
+            return [j.split("@")[0] for j in jids if j]
+        return []
 
-    def get_following(self, phone_number: str = "", limit: int = 20) -> str:
+    def get_following(self, phone_number: str = "", limit: int = 20, offset: int = 0) -> list[str]:
         """
-        Obtiene la lista de usuarios a los que sigue un usuario.
+        Obtiene de forma síncrona la lista de usuarios a los que sigue un usuario.
         
         Args:
             phone_number: Número de teléfono (opcional, por defecto el propio).
             limit: Cantidad de resultados por página.
+            offset: Desplazamiento para paginación.
         Returns:
-            El msg_id de la petición.
+            Una lista con los números de teléfono a los que sigue.
         """
         uid = util.build_jid(phone_number) if phone_number else self.jid
-        stanza = status.get_following(uid, limit)
-        return self.send_stanza(stanza)
+        stanza = status.get_following(uid, limit, offset)
+        res = self.send_iq_and_wait(stanza)
+        
+        query = res.get("query_attrs", "") or res.get("query", "")
+        import re
+        match = re.search(r"result='([^']*)'", query)
+        if match and match.group(1):
+            jids = match.group(1).split(",")
+            return [j.split("@")[0] for j in jids if j]
+        return []
 
-    def get_follower_info(self, phone_number: str) -> str:
+    def get_follower_info(self, phone_number: str) -> dict:
         """
-        Obtiene información de la relación de seguimiento con un usuario.
+        Obtiene información de la relación de seguimiento con un usuario de forma síncrona.
         
         Args:
             phone_number: Número del usuario a consultar.
         Returns:
-            El msg_id de la petición.
+            Un diccionario con la información de seguimiento.
         """
         uid = util.build_jid(phone_number)
         stanza = status.get_follower_info(uid)
-        return self.send_stanza(stanza)
+        return self.send_iq_and_wait(stanza)

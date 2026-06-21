@@ -18,12 +18,28 @@ class ToDusBlockMixin:
         stanza = block.unblock_user(jid)
         return self.send_stanza(stanza)
 
-    def get_block_list(self) -> str:
-        """Obtiene la lista completa de usuarios bloqueados."""
+    def get_block_list(self) -> list[str]:
+        """Obtiene la lista completa de usuarios bloqueados de forma síncrona."""
         stanza = block.get_block_list()
-        return self.send_stanza(stanza)
+        res = self.send_iq_and_wait(stanza)
+        # Parse result
+        import re
+        query = res.get("query", "") or res.get("query_attrs", "")
+        blocked = []
+        for match in re.finditer(r"<item\s+jid='([^']+)'", query):
+            jid = match.group(1)
+            blocked.append(jid.split("@")[0])
+        return blocked
 
-    def get_block_list_paginated(self, limit: int = 20, offset: int = 0) -> str:
-        """Obtiene la lista de usuarios bloqueados de forma paginada."""
+    def get_block_list_paginated(self, limit: int = 20, offset: int = 0) -> list[str]:
+        """Obtiene la lista de usuarios bloqueados de forma paginada de forma síncrona."""
         stanza = block.get_block_list_paginated(limit, offset)
-        return self.send_stanza(stanza)
+        res = self.send_iq_and_wait(stanza)
+        # Parse result
+        import re
+        query = res.get("query", "") or res.get("query_attrs", "")
+        blocked = []
+        for match in re.finditer(r"<item\s+jid='([^']+)'", query):
+            jid = match.group(1)
+            blocked.append(jid.split("@")[0])
+        return blocked

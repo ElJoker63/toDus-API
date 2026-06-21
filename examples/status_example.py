@@ -24,8 +24,9 @@ def main():
     client.listen_messages(on_message)
     time.sleep(1)
     
-    print("\n1. Obteniendo lista de seguidores...")
-    client.get_followers(limit=10)
+    print("\n1. Obteniendo lista de seguidores (síncrono)...")
+    follows = client.get_followers_sync(limit=10)
+    print(follows)
     time.sleep(3)
     
     print("\n2. Publicando un nuevo estado...")
@@ -35,14 +36,15 @@ def main():
         "bg_color": "#ff0000",
         "font": 1
     }
-    client.publish_status(status_content)
+    status = client.publish_status(status_content)
+    print(status)
     time.sleep(3)
     
     # Reemplaza por un número de alguien que siga tus estados para probar follow/unfollow
-    # target_user = "535XXXXXXX"
-    # print(f"\n3. Empezando a seguir los estados de {target_user}...")
-    # client.follow_user(target_user)
-    # time.sleep(3)
+    target_user = "53XXXXXXXX"
+    print(f"\n3. Empezando a seguir los estados de {target_user}...")
+    client.follow_user(target_user)
+    time.sleep(3)
 
     print("\n¡Ejemplo finalizado! Puedes revisar la app ToDus oficial para ver tu estado publicado.")
 

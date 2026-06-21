@@ -5,6 +5,10 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.5] - 2026-06-21
+### Changed
+- 🚀 **Funciones síncronas por defecto**: Se actualizaron todos los métodos `get_` (`get_followers`, `get_profile_privacy`, `get_last_seen`, `get_people_near`, `get_block_list`, etc.) para que envíen la petición IQ y esperen síncronamente la respuesta, parseando la información en objetos útiles (listas, diccionarios) en lugar de devolver el ID interno del paquete. 
+
 ## [1.5.4] - 2026-06-20
 ### Agregado
 - ✨ **Soporte de Llamadas WebRTC (Señalización):** Integrada la API `CallMixin` para realizar negociaciones de llamadas P2P mediante `CallStatusIQ` (`todus:call:status`).
