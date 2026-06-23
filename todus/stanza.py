@@ -52,3 +52,5 @@ from .stanzas.utils import (
     upload_query,
     download_query,
 )
+
+from .stanzas import block, privacy, status, last, profile, channels

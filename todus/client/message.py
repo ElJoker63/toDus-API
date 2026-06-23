@@ -24,7 +24,7 @@ class ToDusMessageMixin:
             sock.send(msg.encode())
         return mid
 
-    def edit_message(self, token: str, to_jid: str, new_body: str, original_msg_id: str) -> str:
+    def edit_message(self, token: str, to_jid: str, new_body: str, original_msg_id: str, reply_to: str = "") -> str:
         """Edita un mensaje privado."""
         edit_id = util.generate_token(8)
         msg = stanza.edit_message(to_jid, new_body, original_msg_id, edit_id=edit_id, reply_to=reply_to)
@@ -176,6 +176,14 @@ class ToDusMessageMixin:
                             try:
                                 receipt = stanza.receipt(msg_from, msg_id)
                                 sock.send(receipt.encode())
+                            except Exception:
+                                pass
+                        
+                        # Enviar TDACK para confirmar recepción a nivel de protocolo ToDus
+                        if msg_id:
+                            try:
+                                ack = stanza.ack(msg_id)
+                                sock.send(ack.encode())
                             except Exception:
                                 pass
                     

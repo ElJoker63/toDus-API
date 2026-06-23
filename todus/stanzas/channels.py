@@ -1,19 +1,13 @@
+import hashlib
+import json
+from base64 import b64encode
 from .utils import iq
 from .. import util
 
 def create_channel_iq(name: str, link: str, public: int = 1, desc: str = "", picture: str = "", subs: list[str] = None, msg_id: str = "") -> str:
     """
     Genera el IQ para crear un nuevo canal.
-    
-    Args:
-        name: Nombre del canal.
-        link: Enlace único (sin @).
-        public: 1 si es público, 0 si es privado.
-        desc: Descripción del canal.
-        picture: URL de la foto de perfil (previamente subida).
-        subs: Lista de números (sin +) a suscribir inicialmente.
     """
-    import hashlib
     mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
     
     attrs = []
@@ -28,28 +22,30 @@ def create_channel_iq(name: str, link: str, public: int = 1, desc: str = "", pic
     payload = f"<query xmlns='todus:ch:create' {attr_str}/>"
     return iq(type_="set", iq_id=mid, payload=payload, to="ch")
 
-def publish_to_channel_iq(channel_jid: str, publ_xml: str, msg_id: str = "") -> str:
+def publish_to_channel_iq(channel_jid: str, publ_data: dict | str, msg_id: str = "") -> str:
     """
-    Genera el IQ para publicar un mensaje en un canal.
-    
-    Args:
-        channel_jid: El JID del canal (ej. mychannel@ch.todus.cu) o el link del canal.
-        publ_xml: El XML completo de la stanza `<message>` a publicar.
+    Genera el IQ para publicar en un canal. 
+    ToDus espera el contenido del mensaje (publ) como JSON codificado en Base64.
     """
-    import hashlib
     mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
+    
+    if isinstance(publ_data, dict):
+        publ_str = json.dumps(publ_data)
+    else:
+        publ_str = publ_data
+        
+    publ_b64 = b64encode(publ_str.encode("utf-8")).decode("utf-8")
     
     if "@" not in channel_jid:
         channel_jid = f"{channel_jid}@ch.todus.cu"
         
-    payload = f"<query xmlns='todus:ch:publish' publ='{util.escape_xml(publ_xml)}'/>"
+    payload = f"<query xmlns='todus:ch:publish' publ='{publ_b64}'/>"
     return iq(type_="set", iq_id=mid, payload=payload, to=channel_jid)
 
 def subscribe_channel_iq(channel_jid: str, msg_id: str = "") -> str:
     """
     Genera el IQ para suscribirse a un canal.
     """
-    import hashlib
     mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
     
     if "@" not in channel_jid:
@@ -62,7 +58,6 @@ def leave_channel_iq(channel_jid: str, msg_id: str = "") -> str:
     """
     Genera el IQ para salir de un canal.
     """
-    import hashlib
     mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
     
     if "@" not in channel_jid:
@@ -75,7 +70,6 @@ def get_channel_publications_iq(channel_jid: str, last_id: str = "", limit: int 
     """
     Genera el IQ para recuperar las publicaciones de un canal.
     """
-    import hashlib
     mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
     
     if "@" not in channel_jid:
@@ -93,7 +87,6 @@ def get_my_channels_iq(msg_id: str = "") -> str:
     """
     Genera el IQ para listar los canales del usuario actual.
     """
-    import hashlib
     mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
     
     payload = f"<query xmlns='todus:ch:my_channels:2'/>"
@@ -103,7 +96,6 @@ def get_channel_info_iq(channel_link: str, msg_id: str = "") -> str:
     """
     Genera el IQ para obtener información de un canal mediante su enlace.
     """
-    import hashlib
     mid = msg_id or hashlib.md5(util.generate_token(16).encode()).hexdigest()
     
     payload = f"<query xmlns='todus:ch:info:link:v2' link='{util.escape_xml(channel_link)}'/>"

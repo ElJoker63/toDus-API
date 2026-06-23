@@ -5,6 +5,16 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.7] - 2026-06-23
+### Fixed
+- 🛠️ **Protocolo Shorthand**: Sincronización total con los atributos abreviados de la app oficial (`o`, `f`, `i`, `t`).
+- 🛠️ **Canales**: Corregido el sistema de publicación en canales; ahora utiliza el formato JSON/Base64 requerido por el servidor.
+- 🛠️ **Manejo de Mensajes**: Añadido soporte automático para `TDACK` (ToDus Acknowledgment) al recibir mensajes, mejorando la estabilidad de los bots.
+- 🛠️ **Handshake XMPP**: Mejorada la robustez del inicio de sesión y gestión de tokens expirados.
+- 🛠️ **Descargas**: Implementado sistema de reintentos y soporte para descargas parciales (Range HTTP).
+- 🛠️ **Parser**: Actualizado para soportar simultáneamente atributos cortos y largos en todas las stanzas.
+- 🛠️ **Ejemplos**: Rehechos todos los ejemplos desde cero para que sean modulares y funcionales con la nueva lógica.
+
 ## [1.5.6] - 2026-06-21
 ### Fixed
 - 📝 **Documentación MkDocs**: Se actualizaron las referencias de la API en `status.md`, `advanced.md` y `blocks_privacy.md` para reflejar correctamente los retornos síncronos de los métodos `get_`.

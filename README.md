@@ -37,20 +37,21 @@ pip install todus-API
 ## 🚀 Uso Rápido (Tu primer bot)
 
 ```python
-from todus import ToDusClient
+from todus import ToDusClient2
 
 # 1. Configura tus credenciales
-client = ToDusClient("5350000000", token="tu_token_aqui")
+client = ToDusClient2("5350000000", password="tu_password")
+client.login()
 
-# 2. Crea manejadores de eventos (handlers)
-@client.on_message
-def responder_mensajes(client: ToDusClient, msg):
-    if not msg.is_own and msg.text:
-        client.send_text_message(msg.sender, f"¡Hola! Recibí: {msg.text}")
+# 2. Crea un callback para los mensajes
+def responder_mensajes(msg):
+    if msg.get("body"):
+        print(f"Recibido: {msg['body']}")
+        client.send_message(msg['from'], f"¡Hola! Recibí: {msg['body']}")
 
-# 3. Ponlo a escuchar
+# 3. Empieza a escuchar
 print("Bot en ejecución...")
-client.run()
+client.listen_messages(responder_mensajes)
 ```
 
 ---

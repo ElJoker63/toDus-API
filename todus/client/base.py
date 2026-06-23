@@ -30,8 +30,11 @@ class ToDusClientBase:
         self.session.headers.update({"Accept-Encoding": "gzip"})
         self.session.verify = self.verify_ssl
         if not self.verify_ssl:
-            import urllib3
-            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            try:
+                import urllib3
+                urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+            except ImportError:
+                pass
         if self.proxy:
             self.session.proxies = {
                 "http": self.proxy,
@@ -44,7 +47,7 @@ class ToDusClientBase:
         import socks
 
         parsed = urlparse(proxy_url)
-        scheme = parsed.scheme.lower()
+        scheme = (parsed.scheme or "").lower()
 
         if "socks5" in scheme:
             proxy_type = socks.SOCKS5
@@ -76,7 +79,10 @@ class ToDusClientBase:
             raw_sock = socket.socket(socket.AF_INET)
 
         raw_sock.settimeout(constants.DEFAULT_TIMEOUT)
-        raw_sock.connect((constants.XMPP_HOST, constants.XMPP_PORT))
+        try:
+            raw_sock.connect((constants.XMPP_HOST, constants.XMPP_PORT))
+        except Exception as e:
+            raise ConnectionLostError(f"Error conectando al servidor ToDus: {e}")
 
         ctx = ssl.create_default_context()
         if not self.verify_ssl:
@@ -96,7 +102,7 @@ class ToDusClientBase:
                 data += chunk
                 if len(chunk) < constants.BUFFER_SIZE:
                     break
-            except socket.timeout:
+            except (socket.timeout, TimeoutError):
                 break
             except OSError:
                 return None
@@ -109,21 +115,20 @@ class ToDusClientBase:
             match = re.search(r"(53\d{8})", token)
             if match:
                 phone = match.group(1)
-        authstr = b64encode((chr(0) + phone + chr(0) + token).encode("utf-8"))
+        # Auth string format for ToDus: \0phone\0token
+        authstr_raw = f"\0{phone}\0{token}"
+        authstr = b64encode(authstr_raw.encode("utf-8"))
         return phone, authstr
 
     def _process_handshake(self, response: str, sock, authstr: bytes, sid: str, state: dict) -> bool:
         phase = state.get("phase", "init")
 
         if phase == "init":
-            if "<stream:features><es xmlns='x2'>" in response:
+            if "<stream:features><es xmlns='x2'>" in response or "<stream:features>" in response:
                 sock.send(stanza.sasl_auth(authstr))
                 state["phase"] = "auth_sent"
                 return True
-            if response.startswith("<?xml version='1.0'?><stream:stream"):
-                if "<stream:features>" in response:
-                    sock.send(stanza.sasl_auth(authstr))
-                    state["phase"] = "auth_sent"
+            if response.startswith("<?xml"):
                 return True
             return True
 
@@ -133,25 +138,21 @@ class ToDusClientBase:
                 state["phase"] = "restream"
                 return True
             if "<not-authorized/>" in response:
-                raise TokenExpiredError()
+                raise TokenExpiredError("Token de sesión expirado o inválido")
             return True
 
         if phase == "restream":
-            if "<stream:features><b1 xmlns='x4'/>" in response:
-                sock.send(stanza.bind(sid + "-1").encode())
-                state["phase"] = "bind_sent"
-                return True
-            if response.startswith("<?xml version='1.0'?><stream:stream") and "<stream:features><b1 xmlns='x4'/>" in response:
+            if "<stream:features><b1 xmlns='x4'/>" in response or "<stream:features>" in response:
                 sock.send(stanza.bind(sid + "-1").encode())
                 state["phase"] = "bind_sent"
                 return True
             return True
 
         if phase == "bind_sent":
-            if "t='result' i='" + sid + "-1'>" in response:
+            if f"i='{sid}-1'" in response and "t='result'" in response:
                 return False
             if "<not-authorized/>" in response:
-                raise TokenExpiredError()
+                raise TokenExpiredError("Error en bind de recurso")
             return True
 
         return True
@@ -161,15 +162,16 @@ class ToDusClientBase:
         sid = util.generate_token(5)
         state = {"phase": "init"}
 
-        while True:
+        for _ in range(20): # Límite de intentos para evitar bucles infinitos
             response = self._recv_all(sock)
             if response is None:
-                raise ConnectionLostError("Servidor cerro conexion durante handshake")
+                raise ConnectionLostError("Servidor cerró la conexión durante el apretón de manos")
             if response == "":
                 continue
 
             if not self._process_handshake(response, sock, authstr, sid, state):
                 return
+        raise ConnectionLostError("Handshake XMPP fallido por exceso de intentos")
 
     # --- Context Manager XMPP ---
 
@@ -189,3 +191,8 @@ class ToDusClientBase:
                 sock.close()
             except Exception:
                 pass
+
+    @property
+    def logged(self) -> bool:
+        """Determina si el cliente tiene un token (probablemente logueado)."""
+        return hasattr(self, '_token') and bool(self._token) or hasattr(self, 'token') and bool(self.token)

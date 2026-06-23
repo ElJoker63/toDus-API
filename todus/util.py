@@ -4,6 +4,7 @@ import json
 import re
 import secrets
 import string
+import hashlib
 from base64 import b64decode
 from datetime import datetime
 
@@ -16,15 +17,22 @@ def generate_token(length: int = 8) -> str:
 
 def normalize_phone(phone_number: str) -> str:
     """Normaliza número cubano a formato 53XXXXXXXX."""
-    phone_number = "".join(phone_number.lstrip("+").split())
-    match = re.match(r"(53)?(\d{8})", phone_number)
+    if not phone_number:
+        return ""
+    phone_number = "".join(filter(str.isdigit, phone_number))
+    if phone_number.startswith("00"):
+        phone_number = phone_number[2:]
+    
+    match = re.search(r"(53)?(\d{8})$", phone_number)
     if not match:
-        raise ValueError(f"Número inválido: {phone_number}")
+        raise ValueError(f"Número cubano inválido: {phone_number}")
     return "53" + match.group(2)
 
 
 def build_jid(phone_number: str) -> str:
     """Construye JID ToDus desde número de teléfono."""
+    if "@" in phone_number:
+        return phone_number
     return normalize_phone(phone_number) + "@im.todus.cu"
 
 
@@ -38,21 +46,27 @@ def parse_jid(jid: str) -> tuple[str, str]:
 
 def escape_xml(text: str) -> str:
     """Escapa caracteres XML especiales, incluyendo apóstrofos."""
+    if not text:
+        return ""
     return (
         text.replace("&", "&amp;")
         .replace("<", "&lt;")
         .replace(">", "&gt;")
         .replace("'", "&apos;")
+        .replace('"', "&quot;")
     )
 
 
 def unescape_xml(text: str) -> str:
     """Revierte escape XML."""
+    if not text:
+        return ""
     return (
         text.replace("&lt;", "<")
         .replace("&gt;", ">")
         .replace("&amp;", "&")
         .replace("&apos;", "'")
+        .replace("&quot;", '"')
     )
 
 
@@ -89,6 +103,8 @@ def format_size(size_bytes: int) -> str:
 def get_image_dimensions(data: bytes) -> tuple[int, int]:
     """Extrae dimensiones de imagen JPEG/PNG sin decodificar completamente."""
     width = height = 0
+    if not data:
+        return 0, 0
 
     # PNG
     if data.startswith(b'\x89PNG\r\n\x1a\n'):
@@ -116,9 +132,8 @@ def get_image_dimensions(data: bytes) -> tuple[int, int]:
 
 
 def generate_blurhash(width: int, height: int) -> str:
-    """Genera un BlurHash simple basado en dimensiones."""
-    # Por ahora devolvemos un hash genérico
-    # En producción usar librería blurhash
+    """Genera un BlurHash genérico para ToDus."""
+    # ToDus usa BlurHash para previsualizar imágenes.
     return "LFE_@w00ay00ay00ay00ay00ay00ay"
 
 
@@ -175,3 +190,6 @@ def sanitize_filename(filename: str, file_type: int = 0) -> str:
         
     return f"{stem_clean}{ext}"
 
+def md5(text: str) -> str:
+    """Calcula el hash MD5 de un texto."""
+    return hashlib.md5(text.encode("utf-8")).hexdigest()

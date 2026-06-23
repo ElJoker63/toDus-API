@@ -10,8 +10,8 @@ def _generate_msg_id() -> str:
 
 
 def iq(type_: str, iq_id: str, payload: str = "", to: str = "") -> str:
-    """Stanza IQ genérica."""
-    to_attr = f" to='{to}'" if to else ""
+    """Stanza IQ genérica siguiendo shorthands de ToDus."""
+    to_attr = f" o='{to}'" if to else ""
     return f"<iq i='{iq_id}' t='{type_}'{to_attr}>{payload}</iq>"
 
 
@@ -32,7 +32,7 @@ def chat_state(to: str, state: str, msg_id: str = "", msg_type: str = "c") -> st
     mid = msg_id or _generate_msg_id()
     tag = "csp" if state == "composing" else "csc"
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<{tag} xmlns='uc1'/>"
         f"</m>"
     )
@@ -42,7 +42,7 @@ def receipt(to: str, msg_id: str, receipt_id: str = "", msg_type: str = "c") -> 
     """Delivery receipt para ToDus."""
     rid = receipt_id or _generate_msg_id()
     return (
-        f"<m to='{to}' t='{msg_type}' i='{rid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{rid}' xmlns='jc'>"
         f"<dd xmlns='x8' i='{msg_id}'/>"
         f"</m>"
     )
@@ -52,7 +52,7 @@ def read_receipt(to: str, msg_id: str, receipt_id: str = "", msg_type: str = "c"
     """Read receipt para ToDus."""
     rid = receipt_id or _generate_msg_id()
     return (
-        f"<m to='{to}' t='{msg_type}' i='{rid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{rid}' xmlns='jc'>"
         f"<rd xmlns='x8' i='{msg_id}'/>"
         f"</m>"
     )
@@ -83,7 +83,7 @@ def stream_close() -> str:
     return "</stream:stream>"
 
 
-def sasl_auth(authstr: bytes) -> str:
+def sasl_auth(authstr: bytes) -> bytes:
     """SASL PLAIN auth."""
     return b"<ah xmlns='ah:ns' e='PLAIN'>" + authstr + b"</ah>"
 

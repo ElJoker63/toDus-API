@@ -38,7 +38,7 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ElJoker63/toDus-API"
+Homepage = "https://eljoker63.github.io/toDus-API"
 Repository = "https://github.com/ElJoker63/toDus-API"
 Issues = "https://github.com/ElJoker63/toDus-API/issues"
 Changelog = "https://github.com/ElJoker63/toDus-API/blob/main/CHANGELOG.md"

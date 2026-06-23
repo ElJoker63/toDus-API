@@ -1,4 +1,4 @@
-"""Generadores de stanzas XML para chat privado en ToDus."""
+"""Generadores de stanzas XML para chat privado en ToDus siguiendo shorthands oficiales."""
 
 import hashlib
 from .. import util
@@ -15,7 +15,7 @@ def message(to: str, body: str, msg_id: str = "", reply_to: str = "", msg_type: 
     body_esc = util.escape_xml(body)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<b>{body_esc}</b>"
@@ -29,7 +29,7 @@ def edit_message(to: str, new_body: str, original_msg_id: str, edit_id: str = ""
     body_esc = util.escape_xml(new_body)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='c' i='{original_msg_id}' xmlns='jc'>"
+        f"<m o='{to}' t='c' i='{original_msg_id}' xmlns='jc'>"
         f"<edited xmlns='edited:n' i='{eid}' mi='{original_msg_id}'/>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
@@ -46,7 +46,7 @@ def file_message(to: str, url: str, file_type: int, caption: str = "", msg_id: s
     name_esc = util.escape_xml(file_name)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<b>{cap_esc}</b>"
@@ -73,7 +73,7 @@ def image_message(to: str, url: str, file_name: str, file_size: int, width: int 
 
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<image xmlns='image:n' i='{fid}' mi='{mid}' url='{url_esc}' n='{name_esc}' s='{file_size}' h=''{wh_attrs} tnail='{tnail}'/>"
@@ -91,7 +91,7 @@ def image_message_simple(to: str, url: str, file_name: str, file_size: int, msg_
 
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<image xmlns='image:n' i='{fid}' mi='{mid}' url='{url_esc}' n='{name_esc}' s='{file_size}' h=''/>"
@@ -115,7 +115,7 @@ def button_message(to: str, text: str, buttons: list[dict], msg_id: str = "", re
 
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<b>{text_esc}</b>"
@@ -130,7 +130,7 @@ def contact_message(to: str, contact_id: str, contact_name: str, contact_phone: 
     name_esc = util.escape_xml(contact_name)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<contact xmlns='contact:n' i='{contact_id}' mi='{mid}' n='{name_esc}' num='{contact_phone}'/>"
@@ -146,7 +146,7 @@ def sticker_message(to: str, sticker_id: str, sticker_name: str, sticker_pack: s
     pack_esc = util.escape_xml(sticker_pack)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<sticker xmlns='sticker:n' i='{sticker_id}' mi='{mid}' n='{name_esc}' f='{pack_esc}' url='' s='0' h='{sticker_hash}' json=''/>"
@@ -165,7 +165,7 @@ def video_message(to: str, url: str, video_id: str, file_name: str, file_size: i
 
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<video xmlns='video:n' i='{video_id}' mi='{mid}' url='{url_esc}' s='{file_size}' h='' d='{duration}' n='{name_esc}' w='{width}' he='{height}' tnail='{thumbnail}'/>"
@@ -181,7 +181,7 @@ def delete_message(to: str, message_id: str, msg_id: str = "", msg_type: str = "
     body_xml = f"<b>{util.escape_xml(body)}</b>" if body or not media_xml else "<b/>"
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"{media_xml}"
@@ -198,7 +198,7 @@ def location_message(to: str, lat: float, lon: float, zoom: float = 11.0, text: 
     text_esc = util.escape_xml(text)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='c' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='c' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<location xmlns='location:n' i='{lid}' mi='{mid}' lat='{lat}' lon='{lon}' z='{zoom}' t='{text_esc}'/>"
@@ -216,7 +216,7 @@ def event_message(to: str, event_id: str, title: str, start: int, end: int, all_
     ics_esc = util.escape_xml(ics_data)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
-        f"<m to='{to}' t='c' i='{mid}' xmlns='jc'>"
+        f"<m o='{to}' t='c' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
         f"<event xmlns='event:n' i='{eid}' mi='{mid}' ti='{title_esc}' s='{start}' e='{end}' ad='{ad_str}'>"

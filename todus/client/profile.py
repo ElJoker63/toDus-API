@@ -97,10 +97,9 @@ class ToDusProfileMixin:
         if thumbnail_data is None:
             thumbnail_data = image_data
 
-        from .file import ToDusFileMixin
         from ..types import FileType
         
-        up_url, down_url = ToDusFileMixin.reserve_upload_url(self, token, len(image_data), FileType.PROFILE)
+        up_url, down_url = self.reserve_upload_url(token, len(image_data), FileType.PROFILE)
         resp = self.session.put(
             up_url,
             data=image_data,
@@ -110,7 +109,7 @@ class ToDusProfileMixin:
         resp.raise_for_status()
         profile_url = down_url
 
-        up_url, down_url = ToDusFileMixin.reserve_upload_url(self, token, len(thumbnail_data), FileType.PROFILE_THUMBNAIL)
+        up_url, down_url = self.reserve_upload_url(token, len(thumbnail_data), FileType.PROFILE_THUMBNAIL)
         resp = self.session.put(
             up_url,
             data=thumbnail_data,

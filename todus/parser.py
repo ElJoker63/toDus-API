@@ -1,4 +1,4 @@
-"""Parser de stanzas XMPP/ToDus."""
+"""Parser de stanzas XMPP/ToDus compatible con shorthands oficiales."""
 
 import re
 from . import util
@@ -15,16 +15,16 @@ def _attr(stanza: str, name: str) -> str:
 
 
 def parse_todus_message(stanza: str) -> dict:
-    """Parsea stanza <m> de ToDus."""
+    """Parsea stanza <m> de ToDus soportando shorthands (f, o, i, t)."""
     # Extraer tag de apertura <m ...> para leer atributos propios del mensaje
     m_open_match = re.search(r"<m\b[^>]*>", stanza)
     m_tag = m_open_match.group(0) if m_open_match else ""
 
     result = {
-        "from": _attr(m_tag, "f"),
-        "to": _attr(m_tag, "o"),
-        "id": _attr(m_tag, "i"),
-        "type": _attr(m_tag, "t"),
+        "from": _attr(m_tag, "f") or _attr(m_tag, "from"),
+        "to": _attr(m_tag, "o") or _attr(m_tag, "to"),
+        "id": _attr(m_tag, "i") or _attr(m_tag, "id"),
+        "type": _attr(m_tag, "t") or _attr(m_tag, "type"),
         "original_id": _attr(m_tag, "mi"),
         "body": "",
         "url": "",
@@ -78,7 +78,7 @@ def parse_todus_message(stanza: str) -> dict:
     }
 
     # Detectar si es mensaje de grupo
-    msg_type = _attr(m_tag, "t")
+    msg_type = result["type"]
     result["is_group"] = msg_type == "gc"
 
     if result["is_group"]:
@@ -116,13 +116,13 @@ def parse_todus_message(stanza: str) -> dict:
     file_match = re.search(r"<file\b[^>]*>", stanza)
     if file_match:
         file_tag = file_match.group(0)
-        result["file_id"] = _attr(file_tag, "i")
+        result["file_id"] = _attr(file_tag, "i") or _attr(file_tag, "id")
         result["message_file_id"] = _attr(file_tag, "mi")
         result["file_name"] = util.unescape_xml(_attr(file_tag, "n"))
         result["url"] = _attr(file_tag, "url")
         try:
             result["file_size"] = int(_attr(file_tag, "s"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["file_size"] = 0
         result["file_hash"] = _attr(file_tag, "h")
 
@@ -130,22 +130,22 @@ def parse_todus_message(stanza: str) -> dict:
     image_match = re.search(r"<image\b[^>]*>", stanza)
     if image_match:
         image_tag = image_match.group(0)
-        result["file_id"] = _attr(image_tag, "i")
+        result["file_id"] = _attr(image_tag, "i") or _attr(image_tag, "id")
         result["message_file_id"] = _attr(image_tag, "mi")
         result["file_name"] = util.unescape_xml(_attr(image_tag, "n")) or "image.jpg"
         result["url"] = _attr(image_tag, "url")
         try:
             result["file_size"] = int(_attr(image_tag, "s"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["file_size"] = 0
         result["file_hash"] = _attr(image_tag, "h")
         try:
             result["image_width"] = int(_attr(image_tag, "w"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["image_width"] = 0
         try:
             result["image_height"] = int(_attr(image_tag, "he"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["image_height"] = 0
         result["image_thumbnail"] = _attr(image_tag, "tnail")
 
@@ -153,7 +153,7 @@ def parse_todus_message(stanza: str) -> dict:
     contact_match = re.search(r"<contact\b[^>]*>", stanza)
     if contact_match:
         contact_tag = contact_match.group(0)
-        result["contact_id"] = _attr(contact_tag, "i")
+        result["contact_id"] = _attr(contact_tag, "i") or _attr(contact_tag, "id")
         result["contact_name"] = util.unescape_xml(_attr(contact_tag, "n"))
         result["contact_phone"] = _attr(contact_tag, "num")
         result["message_file_id"] = _attr(contact_tag, "mi")
@@ -162,7 +162,7 @@ def parse_todus_message(stanza: str) -> dict:
     sticker_match = re.search(r"<sticker\b[^>]*>", stanza)
     if sticker_match:
         sticker_tag = sticker_match.group(0)
-        result["sticker_id"] = _attr(sticker_tag, "i")
+        result["sticker_id"] = _attr(sticker_tag, "i") or _attr(sticker_tag, "id")
         result["sticker_name"] = util.unescape_xml(_attr(sticker_tag, "n"))
         result["sticker_pack"] = util.unescape_xml(_attr(sticker_tag, "f"))
         result["sticker_hash"] = _attr(sticker_tag, "h")
@@ -172,25 +172,25 @@ def parse_todus_message(stanza: str) -> dict:
     video_match = re.search(r"<video\b[^>]*>", stanza)
     if video_match:
         video_tag = video_match.group(0)
-        result["video_id"] = _attr(video_tag, "i")
+        result["video_id"] = _attr(video_tag, "i") or _attr(video_tag, "id")
         result["message_file_id"] = _attr(video_tag, "mi")
         result["video_name"] = util.unescape_xml(_attr(video_tag, "n"))
         result["video_url"] = _attr(video_tag, "url")
         try:
             result["video_size"] = int(_attr(video_tag, "s"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["video_size"] = 0
         try:
             result["video_duration"] = int(_attr(video_tag, "d"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["video_duration"] = 0
         try:
             result["video_width"] = int(_attr(video_tag, "w"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["video_width"] = 0
         try:
             result["video_height"] = int(_attr(video_tag, "he"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["video_height"] = 0
         result["video_thumbnail"] = _attr(video_tag, "tnail")
         result["file_hash"] = _attr(video_tag, "h")
@@ -206,31 +206,31 @@ def parse_todus_message(stanza: str) -> dict:
     edited_match = re.search(r"<edited\b[^>]*>", stanza)
     if edited_match:
         edited_tag = edited_match.group(0)
-        result["edited"] = _attr(edited_tag, "i")
+        result["edited"] = _attr(edited_tag, "i") or _attr(edited_tag, "id")
 
     # Deleted
     deleted_match = re.search(r"<deleted\b[^>]*>", stanza)
     if deleted_match:
         deleted_tag = deleted_match.group(0)
-        result["deleted"] = _attr(deleted_tag, "mi") or _attr(deleted_tag, "i")
+        result["deleted"] = _attr(deleted_tag, "mi") or _attr(deleted_tag, "i") or _attr(deleted_tag, "id")
 
     # Ubicación adjunta (location)
     location_match = re.search(r"<location\b[^>]*>", stanza)
     if location_match:
         loc_tag = location_match.group(0)
-        result["location_id"] = _attr(loc_tag, "i")
+        result["location_id"] = _attr(loc_tag, "i") or _attr(loc_tag, "id")
         result["message_file_id"] = _attr(loc_tag, "mi")
         try:
             result["location_lat"] = float(_attr(loc_tag, "lat"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["location_lat"] = 0.0
         try:
             result["location_lon"] = float(_attr(loc_tag, "lon"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["location_lon"] = 0.0
         try:
             result["location_zoom"] = float(_attr(loc_tag, "z"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["location_zoom"] = 0.0
         result["location_text"] = util.unescape_xml(_attr(loc_tag, "t"))
 
@@ -238,16 +238,16 @@ def parse_todus_message(stanza: str) -> dict:
     event_match = re.search(r"<event\b[^>]*>", stanza)
     if event_match:
         event_tag = event_match.group(0)
-        result["event_id"] = _attr(event_tag, "i")
+        result["event_id"] = _attr(event_tag, "i") or _attr(event_tag, "id")
         result["message_file_id"] = _attr(event_tag, "mi")
         result["event_title"] = util.unescape_xml(_attr(event_tag, "ti"))
         try:
             result["event_start"] = int(_attr(event_tag, "s"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["event_start"] = 0
         try:
             result["event_end"] = int(_attr(event_tag, "e"))
-        except ValueError:
+        except (ValueError, TypeError):
             result["event_end"] = 0
         result["event_all_day"] = _attr(event_tag, "ad").lower() == "true"
         
@@ -265,13 +265,13 @@ def parse_todus_message(stanza: str) -> dict:
     receipt_match = re.search(r"<dd\b[^>]*>", stanza)
     if receipt_match:
         receipt_tag = receipt_match.group(0)
-        result["receipt"] = _attr(receipt_tag, "i")
+        result["receipt"] = _attr(receipt_tag, "i") or _attr(receipt_tag, "id")
         result["receipt_type"] = "delivered"
     else:
         read_match = re.search(r"<rd\b[^>]*>", stanza)
         if read_match:
             read_tag = read_match.group(0)
-            result["receipt"] = _attr(read_tag, "i")
+            result["receipt"] = _attr(read_tag, "i") or _attr(read_tag, "id")
             result["receipt_type"] = "read"
 
     return result
@@ -280,9 +280,9 @@ def parse_todus_message(stanza: str) -> dict:
 def parse_presence(stanza: str) -> dict:
     """Parsea stanza <p> de presencia."""
     result = {
-        "from": _attr(stanza, "f"),
-        "to": _attr(stanza, "o"),
-        "id": _attr(stanza, "i"),
+        "from": _attr(stanza, "f") or _attr(stanza, "from"),
+        "to": _attr(stanza, "o") or _attr(stanza, "to"),
+        "id": _attr(stanza, "i") or _attr(stanza, "id"),
         "status": "",
         "show": "",
         "priority": "",
@@ -307,10 +307,10 @@ def parse_presence(stanza: str) -> dict:
 def parse_iq(stanza: str) -> dict:
     """Parsea stanza IQ."""
     result = {
-        "from": _attr(stanza, "f"),
-        "to": _attr(stanza, "o"),
-        "id": _attr(stanza, "i"),
-        "type": _attr(stanza, "t"),
+        "from": _attr(stanza, "f") or _attr(stanza, "from"),
+        "to": _attr(stanza, "o") or _attr(stanza, "to"),
+        "id": _attr(stanza, "i") or _attr(stanza, "id"),
+        "type": _attr(stanza, "t") or _attr(stanza, "type"),
         "error": "",
         "raw": stanza,
     }
