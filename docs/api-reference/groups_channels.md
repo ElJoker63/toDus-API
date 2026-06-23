@@ -1,38 +1,53 @@
 # Grupos y Canales
 
-ToDus usa la extensión MUC Light para sus grupos, y una variante para canales.
+ToDus usa la extensión MUC Light para sus grupos, y una variante avanzada para canales.
 
-## Grupos
+## Grupos MUC Light
 
-### `create_group(name, users)`
-Crea un nuevo grupo con un nombre y una lista de miembros iniciales.
+La clase `ToDusClient2` provee acceso a la gestión de grupos a través del atributo `.groups`.
+
+### `join(group_id)`
+Te unes a un grupo existente mediante su ID.
 ```python
-client.create_group("Mi Grupo Python", ["5350000000", "5351111111"])
+client.groups.join("ID_DEL_GRUPO")
 ```
 
 ### Administrar Miembros
-- `add_users_to_group(group_jid, users)`: Añade nuevos participantes.
-- `remove_user_from_group(group_jid, user)`: Elimina (expulsa) a un miembro.
-- `leave_group(group_jid)`: Abandonas el grupo voluntariamente.
-- `set_group_admin(group_jid, user)`: Promueve a un usuario a administrador.
+- `get_members(group_id)`: Solicita la lista de miembros (la respuesta llega por el listener).
+- `set_member_role(group_id, user_phone, role)`: Cambia el rol (`participant`, `moderator`, `owner`, `none` para expulsar).
+- `kick_member(group_id, phone)`: Expulsa a un miembro.
+- `leave(group_id)`: Abandonas el grupo formalmente.
 
 ### Modificar Grupo
-- `set_group_name(group_jid, name)`
-- `set_group_avatar(group_jid, avatar_url)`
+- `set_name(group_id, name)`: Cambia el nombre del grupo.
+- `set_subject(group_id, desc)`: Cambia la descripción.
+- `set_avatar(group_id, url, thumb_url="")`: Actualiza la imagen del grupo.
+
+---
 
 ## Canales
 
-Los canales son similares a los grupos pero diseñados para difusión de un solo sentido (o pocos publicadores).
+Los canales en ToDus requieren un formato de publicación específico (JSON en Base64), el cual la librería maneja automáticamente.
 
-### `create_channel(name, description)`
-Crea un canal público o privado.
+### `get_my_channels()`
+Retorna de forma síncrona una lista con los JIDs de los canales donde eres administrador o suscriptor.
 ```python
-client.create_channel("Noticias ToDus", "Canal de prueba de la API")
+canales = client.get_my_channels()
+# Output: ['canal1@ch.todus.cu', 'noticias@ch.todus.cu']
 ```
 
-### `subscribe_channel(channel_jid)`
-Te suscribe a un canal existente para empezar a recibir sus actualizaciones.
+### `publish_to_channel(channel_jid, publ_data)`
+Publica contenido en un canal. `publ_data` debe ser un diccionario con la estructura del mensaje.
 
-### Administrar Canal
-- `publish_channel_message(channel_jid, text)`: Envía un mensaje como administrador del canal.
-- `get_channel_subscribers(channel_jid)`: Obtén la lista de suscriptores.
+```python
+data = {
+    "body": "¡Hola canal!",
+    "type": "text"
+}
+client.publish_to_channel("micanal@ch.todus.cu", data)
+```
+
+### Gestión de Membresía
+- `subscribe_channel(channel_jid)`: Suscribirse a un canal público.
+- `leave_channel(channel_jid)`: Desuscribirse de un canal.
+- `get_channel_info(link)`: Obtener metadatos de un canal mediante su enlace corto.
