@@ -50,7 +50,7 @@ class ToDusClient2(ToDusClient):
     def __init__(self, phone_number: str, password: str = "", proxy: str | None = None, **kwargs) -> None:
         super().__init__(proxy=proxy, **kwargs)
         self.phone_number = util.normalize_phone(phone_number) if phone_number else ""
-        self.password = password.strip() if password else ""
+        self.password = (password or "").strip()
         self._token = ""
         self._group_client = None
 
@@ -155,6 +155,7 @@ class ToDusClient2(ToDusClient):
         if not target: return False
         if "@" in target:
             return "muclight" in target
+        # Los teléfonos cubanos son 10 dígitos empezando por 53
         return not (target.isdigit() and len(target) == 10 and target.startswith("53"))
 
     # --- Mensajería ---
@@ -220,7 +221,6 @@ class ToDusClient2(ToDusClient):
         res = self.send_iq_and_wait(stanza_str)
         
         query_attrs = res.get("query_attrs", "")
-        import re
         match = re.search(r"channels=['\"]([^'\"]+)['\"]", query_attrs)
         if match:
             channels_str = match.group(1)

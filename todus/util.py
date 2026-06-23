@@ -5,6 +5,7 @@ import re
 import secrets
 import string
 import hashlib
+import os
 from base64 import b64decode
 from datetime import datetime
 
@@ -19,7 +20,7 @@ def normalize_phone(phone_number: str) -> str:
     """Normaliza número cubano a formato 53XXXXXXXX."""
     if not phone_number:
         return ""
-    phone_number = "".join(filter(str.isdigit, phone_number))
+    phone_number = "".join(filter(str.isdigit, str(phone_number)))
     if phone_number.startswith("00"):
         phone_number = phone_number[2:]
     
@@ -31,6 +32,8 @@ def normalize_phone(phone_number: str) -> str:
 
 def build_jid(phone_number: str) -> str:
     """Construye JID ToDus desde número de teléfono."""
+    if not phone_number:
+        return ""
     if "@" in phone_number:
         return phone_number
     return normalize_phone(phone_number) + "@im.todus.cu"
@@ -38,6 +41,8 @@ def build_jid(phone_number: str) -> str:
 
 def parse_jid(jid: str) -> tuple[str, str]:
     """Extrae (phone, resource) de un JID."""
+    if not jid:
+        return "", ""
     parts = jid.split("/", 1)
     phone = parts[0].split("@")[0]
     resource = parts[1] if len(parts) > 1 else ""
@@ -45,11 +50,11 @@ def parse_jid(jid: str) -> tuple[str, str]:
 
 
 def escape_xml(text: str) -> str:
-    """Escapa caracteres XML especiales, incluyendo apóstrofos."""
+    """Escapa caracteres XML especiales."""
     if not text:
         return ""
     return (
-        text.replace("&", "&amp;")
+        str(text).replace("&", "&amp;")
         .replace("<", "&lt;")
         .replace(">", "&gt;")
         .replace("'", "&apos;")
@@ -62,7 +67,7 @@ def unescape_xml(text: str) -> str:
     if not text:
         return ""
     return (
-        text.replace("&lt;", "<")
+        str(text).replace("&lt;", "<")
         .replace("&gt;", ">")
         .replace("&amp;", "&")
         .replace("&apos;", "'")
@@ -72,6 +77,8 @@ def unescape_xml(text: str) -> str:
 
 def jwt_decode_payload(token: str) -> dict:
     """Decodifica payload de JWT sin verificar firma."""
+    if not token or not isinstance(token, str):
+        return {}
     parts = token.split(".")
     if len(parts) < 2:
         return {}
@@ -93,6 +100,7 @@ def timestamp_ms() -> int:
 
 def format_size(size_bytes: int) -> str:
     """Formatea tamaño en bytes a human readable."""
+    size_bytes = float(size_bytes)
     for unit in ["B", "KB", "MB", "GB"]:
         if size_bytes < 1024:
             return f"{size_bytes:.1f} {unit}"
@@ -103,7 +111,7 @@ def format_size(size_bytes: int) -> str:
 def get_image_dimensions(data: bytes) -> tuple[int, int]:
     """Extrae dimensiones de imagen JPEG/PNG sin decodificar completamente."""
     width = height = 0
-    if not data:
+    if not data or not isinstance(data, (bytes, bytearray)):
         return 0, 0
 
     # PNG
@@ -133,16 +141,13 @@ def get_image_dimensions(data: bytes) -> tuple[int, int]:
 
 def generate_blurhash(width: int, height: int) -> str:
     """Genera un BlurHash genérico para ToDus."""
-    # ToDus usa BlurHash para previsualizar imágenes.
     return "LFE_@w00ay00ay00ay00ay00ay00ay"
 
 
 def sanitize_filename(filename: str, file_type: int = 0) -> str:
-    """Limpia caracteres problemáticos en el nombre del archivo para URLs, asegurando extensión según el tipo."""
-    import os
+    """Limpia caracteres problemáticos en el nombre del archivo."""
     from .types import FileType
     
-    # Mapeo de extensiones por defecto por tipo
     default_exts = {
         FileType.PICTURE: ".jpg",
         FileType.VIDEO: ".mp4",
@@ -156,40 +161,28 @@ def sanitize_filename(filename: str, file_type: int = 0) -> str:
     default_ext = default_exts.get(file_type, ".bin")
     
     if not filename:
-        # Generar nombre por defecto por tipo
         default_names = {
             FileType.PICTURE: "photo",
             FileType.VIDEO: "video",
             FileType.AUDIO: "audio",
             FileType.VOICE: "voice",
             FileType.FILE: "file",
-            FileType.PROFILE: "profile",
-            FileType.PROFILE_THUMBNAIL: "thumbnail",
         }
         stem = default_names.get(file_type, "file")
         ext = default_ext
     else:
-        # Solo el nombre del archivo si es una ruta
-        filename = os.path.basename(filename)
-        
-        # Separar nombre y extensión
+        filename = os.path.basename(str(filename))
         parts = filename.rsplit(".", 1)
         stem = parts[0]
-        ext = "." + parts[1] if len(parts) > 1 else ""
-        
-        # Si no tiene extensión, usar la correspondiente al tipo
-        if not ext:
-            ext = default_ext
+        ext = "." + parts[1] if len(parts) > 1 else default_ext
             
-    # Reemplazar caracteres no permitidos en nombres de archivos o problemáticos en URLs
     stem_clean = re.sub(r'[\\/*?:"<>|\s]', "_", stem)
-    
-    # Limitar longitud para evitar URLs excesivamente largas
     if len(stem_clean) > 50:
         stem_clean = stem_clean[:47] + "..."
         
     return f"{stem_clean}{ext}"
 
+
 def md5(text: str) -> str:
     """Calcula el hash MD5 de un texto."""
-    return hashlib.md5(text.encode("utf-8")).hexdigest()
+    return hashlib.md5(str(text).encode("utf-8")).hexdigest()

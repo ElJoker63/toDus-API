@@ -33,7 +33,7 @@ class ToDusClientBase:
             try:
                 import urllib3
                 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-            except ImportError:
+            except Exception:
                 pass
         if self.proxy:
             self.session.proxies = {
@@ -44,7 +44,10 @@ class ToDusClientBase:
 
     def _parse_proxy(self, proxy_url: str):
         from urllib.parse import urlparse
-        import socks
+        try:
+            import socks
+        except ImportError:
+            raise ImportError("Se requiere 'pysocks' para usar proxies. Instálalo con 'pip install pysocks'")
 
         parsed = urlparse(proxy_url)
         scheme = (parsed.scheme or "").lower()
@@ -71,7 +74,10 @@ class ToDusClientBase:
 
     def _connect_xmpp(self) -> ssl.SSLSocket:
         if self.proxy:
-            import socks
+            try:
+                import socks
+            except ImportError:
+                raise ImportError("Se requiere 'pysocks' para usar proxies.")
             proxy_type, host, port, username, password = self._parse_proxy(self.proxy)
             raw_sock = socks.socksocket(socket.AF_INET)
             raw_sock.set_proxy(proxy_type, host, port, username=username, password=password)
@@ -102,7 +108,7 @@ class ToDusClientBase:
                 data += chunk
                 if len(chunk) < constants.BUFFER_SIZE:
                     break
-            except (socket.timeout, TimeoutError):
+            except socket.timeout:
                 break
             except OSError:
                 return None
@@ -194,5 +200,5 @@ class ToDusClientBase:
 
     @property
     def logged(self) -> bool:
-        """Determina si el cliente tiene un token (probablemente logueado)."""
-        return hasattr(self, '_token') and bool(self._token) or hasattr(self, 'token') and bool(self.token)
+        """Determina si el cliente tiene un token."""
+        return hasattr(self, '_token') and bool(self._token) or (hasattr(self, 'token') and bool(self.token))

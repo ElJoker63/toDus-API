@@ -1,4 +1,4 @@
-"""Tests para todus.stanza (builders XML)."""
+"""Tests para todus.stanza (builders XML) actualizados para ToDus shorthands."""
 
 from todus import stanza
 
@@ -9,7 +9,7 @@ class TestMessage:
         assert "test123" in xml
         assert "hola" in xml
         assert "<b>" in xml
-        assert "to='user@im.todus.cu'" in xml
+        assert "o='user@im.todus.cu'" in xml
 
     def test_escapes_body(self):
         xml = stanza.message("user@im.todus.cu", "a<b&c", msg_id="id1")
