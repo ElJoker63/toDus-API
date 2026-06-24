@@ -5,6 +5,10 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.5.8] - 2026-06-23
+### Fixed
+- 🛠️ **Alineación de Argumentos**: Corregido error de desajuste de parámetros posicionales en los métodos de mensajería multimedia (`send_image_message`, `send_video_message`) de `ToDusClient2`. Ahora utilizan argumentos con nombre explícitos para mayor robustez.
+
 ## [1.5.7] - 2026-06-23
 ### Fixed
 - 🛠️ **Protocolo Shorthand**: Sincronización total con los atributos abreviados de la app oficial (`o`, `f`, `i`, `t`).
