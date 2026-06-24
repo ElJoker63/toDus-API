@@ -184,6 +184,42 @@ class ToDusClient2(ToDusClient):
             return self.groups.send_file(to, url, file_name, file_size, caption)
         return super().send_file_message(self._token, util.build_jid(to), url, file_type, caption, file_name=file_name, file_size=file_size, reply_to=reply_to)
 
+    def send_image_message(self, to: str, url: str, file_name: str, file_size: int, width: int = 0, height: int = 0, thumbnail: str = "", caption: str = "", reply_to: str = "") -> str:
+        if not self._token: raise AuthenticationError("No autenticado")
+        if self._is_group_target(to):
+            return self.groups.send_image(to, url, file_name, file_size, width, height, thumbnail, caption, reply_to=reply_to)
+        return super().send_image_message(
+            token=self._token,
+            to_jid=util.build_jid(to),
+            url=url,
+            file_name=file_name,
+            file_size=file_size,
+            width=width,
+            height=height,
+            thumbnail=thumbnail,
+            caption=caption,
+            reply_to=reply_to
+        )
+
+    def send_video_message(self, to: str, url: str, video_id: str, file_name: str, file_size: int, duration: int, width: int, height: int, thumbnail: str, info_text: str = "", reply_to: str = "") -> str:
+        if not self._token: raise AuthenticationError("No autenticado")
+        if self._is_group_target(to):
+            return self.groups.send_video(to, url, video_id, file_name, file_size, duration, width, height, thumbnail, info_text, reply_to=reply_to)
+        return super().send_video_message(
+            token=self._token,
+            to_jid=util.build_jid(to),
+            url=url,
+            video_id=video_id,
+            file_name=file_name,
+            file_size=file_size,
+            duration=duration,
+            width=width,
+            height=height,
+            thumbnail=thumbnail,
+            info_text=info_text,
+            reply_to=reply_to
+        )
+
     def send_image_message_simple(self, to: str, url: str, file_name: str, file_size: int, reply_to: str = "") -> str:
         if not self._token: raise AuthenticationError("No autenticado")
         if self._is_group_target(to):
