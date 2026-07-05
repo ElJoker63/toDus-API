@@ -100,6 +100,45 @@ class ToDusMessageMixin:
             sock.send(msg.encode())
         return mid
 
+    def send_voice_message(self, token: str, to_jid: str, url: str, voice_id: str, file_size: int, duration: int, wave_sample: str = "", reply_to: str = "") -> str:
+        """Envía un mensaje con nota de voz adjunta."""
+        mid = util.generate_token(8)
+        msg = stanza.voice_message(to_jid, url, voice_id, file_size, duration, wave_sample, msg_id=mid, reply_to=reply_to)
+        with self._xmpp_session(token) as sock:
+            sock.send(msg.encode())
+        return mid
+
+    def send_audio_message(self, token: str, to_jid: str, url: str, audio_id: str, file_name: str, file_size: int, duration: int, reply_to: str = "") -> str:
+        """Envía un mensaje con audio adjunto."""
+        mid = util.generate_token(8)
+        msg = stanza.audio_message(to_jid, url, audio_id, file_name, file_size, duration, msg_id=mid, reply_to=reply_to)
+        with self._xmpp_session(token) as sock:
+            sock.send(msg.encode())
+        return mid
+
+    def send_gif_message(self, token: str, to_jid: str, url: str, gif_id: str, file_name: str, file_size: int, width: int = 0, height: int = 0, thumbnail: str = "", reply_to: str = "") -> str:
+        """Envía un mensaje con GIF adjunto."""
+        mid = util.generate_token(8)
+        msg = stanza.gif_message(to_jid, url, gif_id, file_name, file_size, width, height, thumbnail, msg_id=mid, reply_to=reply_to)
+        with self._xmpp_session(token) as sock:
+            sock.send(msg.encode())
+        return mid
+
+    def forward_message(self, token: str, to_jid: str, original_from: str, original_id: str, reply_to: str = "") -> str:
+        """Reenvía un mensaje existente."""
+        mid = util.generate_token(8)
+        msg = stanza.forward_message(to_jid, original_from, original_id, msg_id=mid, reply_to=reply_to)
+        with self._xmpp_session(token) as sock:
+            sock.send(msg.encode())
+        return mid
+
+    def send_deleted_owner_message(self, token: str, to_jid: str, message_id: str) -> str:
+        """Elimina un mensaje propio (deletedowner)."""
+        msg = stanza.deleted_owner_message(to_jid, message_id)
+        with self._xmpp_session(token) as sock:
+            sock.send(msg.encode())
+        return message_id
+
     def send_chat_state(self, token: str, to_jid: str, state: str) -> None:
         st = stanza.chat_state(to_jid, state)
         with self._xmpp_session(token) as sock:

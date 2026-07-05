@@ -20,9 +20,9 @@
 
 ## ⚡ ¿Qué es toDus-API?
 
-Es una librería moderna, asíncrona y orientada a eventos para interactuar con la red de ToDus. Te permite crear bots interactivos, manejar grupos y canales, enviar contenido multimedia y ver o publicar historias, todo usando Python puro.
+Es una librería moderna, síncrona y orientada a eventos para interactuar con la red de ToDus. Te permite crear bots interactivos, manejar grupos y canales, enviar contenido multimedia, publicar historias y mucho más, todo usando Python puro.
 
-**Cobertura del protocolo:** 100% de las funciones de la app oficial.
+**Cobertura del protocolo:** 100% de las funciones de la app oficial (inspeccionada desde el código fuente Android).
 
 ---
 

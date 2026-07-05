@@ -103,7 +103,8 @@ class ToDusFileMixin:
         headers = {
             "Content-Length": str(len(data)),
             "Content-Type": "application/octet-stream" if file_type != FileType.PICTURE else "image/jpeg",
-            "User-Agent": f"ToDus {self.version_name} HTTP-Upload"
+            "User-Agent": f"ToDus {self.version_name} HTTP-Upload",
+            "Authorization": f"Bearer {token}",
         }
         
         resp = self.session.put(

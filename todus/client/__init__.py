@@ -19,6 +19,7 @@ from .block import ToDusBlockMixin
 from .last import ToDusLastMixin
 from .location import ToDusLocationMixin
 from .call import ToDusCallMixin
+from .rest import ToDusRestMixin
 from ..errors import AuthenticationError, TokenExpiredError, ConnectionLostError
 from ..types import FileType
 from .. import util, parser, stanza
@@ -38,6 +39,7 @@ class ToDusClient(
     ToDusLastMixin,
     ToDusLocationMixin,
     ToDusCallMixin,
+    ToDusRestMixin,
     ToDusClientBase,
 ):
     """Cliente unificado para la API de ToDus."""
@@ -242,6 +244,30 @@ class ToDusClient2(ToDusClient):
             return self.groups.send_location(to, lat, lon, zoom, text)
         return super().send_location_message(self._token, util.build_jid(to), lat, lon, zoom, text, reply_to=reply_to)
 
+    def send_voice_message(self, to: str, url: str, voice_id: str, file_size: int, duration: int, wave_sample: str = "", reply_to: str = "") -> str:
+        if not self._token: raise AuthenticationError("No autenticado")
+        if self._is_group_target(to):
+            return self.groups.send_voice(to, url, voice_id, file_size, duration, wave_sample)
+        return super().send_voice_message(self._token, util.build_jid(to), url, voice_id, file_size, duration, wave_sample, reply_to=reply_to)
+
+    def send_audio_message(self, to: str, url: str, audio_id: str, file_name: str, file_size: int, duration: int, reply_to: str = "") -> str:
+        if not self._token: raise AuthenticationError("No autenticado")
+        if self._is_group_target(to):
+            return self.groups.send_audio(to, url, audio_id, file_name, file_size, duration)
+        return super().send_audio_message(self._token, util.build_jid(to), url, audio_id, file_name, file_size, duration, reply_to=reply_to)
+
+    def send_gif_message(self, to: str, url: str, gif_id: str, file_name: str, file_size: int, width: int = 0, height: int = 0, thumbnail: str = "", reply_to: str = "") -> str:
+        if not self._token: raise AuthenticationError("No autenticado")
+        if self._is_group_target(to):
+            return self.groups.send_gif(to, url, gif_id, file_name, file_size, width, height, thumbnail)
+        return super().send_gif_message(self._token, util.build_jid(to), url, gif_id, file_name, file_size, width, height, thumbnail, reply_to=reply_to)
+
+    def forward_message(self, to: str, original_from: str, original_id: str, reply_to: str = "") -> str:
+        if not self._token: raise AuthenticationError("No autenticado")
+        if self._is_group_target(to):
+            return self.groups.forward_message(to, original_from, original_id)
+        return super().forward_message(self._token, util.build_jid(to), original_from, original_id, reply_to=reply_to)
+
     def send_read_receipt(self, to: str, msg_id: str) -> str:
         if not self._token: raise AuthenticationError("No autenticado")
         return super().send_read_receipt(self._token, util.build_jid(to), msg_id)
@@ -320,6 +346,17 @@ class ToDusClient2(ToDusClient):
             blocked.append(jid.split("@")[0])
         return blocked
 
+    def get_block_list_paginated(self, limit: int = 20, offset: int = 0) -> list[str]:
+        if not self._token: raise AuthenticationError("No autenticado")
+        stanza_str = stanza.block.get_block_list_paginated(limit, offset)
+        res = self.send_iq_and_wait(stanza_str)
+        query = res.get("query", "") or res.get("query_attrs", "")
+        blocked = []
+        for match in re.finditer(r"<item\s+jid=['\"]([^'\"]+)['\"]", query):
+            jid = match.group(1)
+            blocked.append(jid.split("@")[0])
+        return blocked
+
     def get_profile_privacy(self) -> dict:
         if not self._token: raise AuthenticationError("No autenticado")
         stanza_str = stanza.privacy.get_profile_privacy()
@@ -333,6 +370,57 @@ class ToDusClient2(ToDusClient):
     def set_profile_privacy(self, profile_photo: str = "everyone", last: str = "everyone", info: str = "everyone") -> str:
         if not self._token: raise AuthenticationError("No autenticado")
         return self.send_stanza(stanza.privacy.set_profile_privacy(profile_photo, last, info))
+
+    # --- Roster (Contactos) ---
+
+    def get_roster(self, limit: int = 50, offset: int = 0) -> list[dict]:
+        """Obtiene la lista de contactos del usuario."""
+        if not self._token: raise AuthenticationError("No autenticado")
+        stanza_str = stanza.roster.get_roster_paginated(limit, offset)
+        res = self.send_iq_and_wait(stanza_str)
+        query = res.get("query", "") or res.get("query_attrs", "")
+        contacts = []
+        for match in re.finditer(r"<item\s+jid=['\"]([^'\"]+)['\"](?:\s+name=['\"]([^'\"]*)['\"])?", query):
+            jid = match.group(1)
+            name = match.group(2) or ""
+            contacts.append({"jid": jid, "phone": jid.split("@")[0], "name": name})
+        return contacts
+
+    def add_contact(self, phone: str, name: str = "") -> str:
+        """Añade un contacto al roster."""
+        if not self._token: raise AuthenticationError("No autenticado")
+        jid = util.build_jid(phone)
+        stanza_str = stanza.roster.update_roster_entry(jid, name)
+        return self.send_stanza(stanza_str)
+
+    def delete_contact(self, phone: str) -> str:
+        """Elimina un contacto del roster."""
+        if not self._token: raise AuthenticationError("No autenticado")
+        jid = util.build_jid(phone)
+        stanza_str = stanza.roster.delete_roster_entry(jid)
+        return self.send_stanza(stanza_str)
+
+    def get_todus_id(self, phone: str) -> str:
+        """Obtiene el ToDus ID (@username) de un usuario."""
+        if not self._token: raise AuthenticationError("No autenticado")
+        stanza_str = stanza.roster.get_todus_id(phone)
+        res = self.send_iq_and_wait(stanza_str)
+        query = res.get("query", "") or res.get("query_attrs", "")
+        match = re.search(r"todus_id=['\"]([^'\"]+)['\"]", query)
+        return match.group(1) if match else ""
+
+    def edit_todus_id(self, new_id: str) -> str:
+        """Cambia el ToDus ID (@username) del usuario."""
+        if not self._token: raise AuthenticationError("No autenticado")
+        stanza_str = stanza.roster.edit_todus_id(new_id)
+        return self.send_stanza(stanza_str)
+
+    def get_users_info(self, phones: list[str]) -> list[dict]:
+        """Obtiene información de múltiples usuarios."""
+        if not self._token: raise AuthenticationError("No autenticado")
+        jids = [util.build_jid(p) for p in phones]
+        stanza_str = stanza.roster.get_users_info(jids)
+        return self.send_iq_and_wait(stanza_str)
 
     # --- Archivos ---
 

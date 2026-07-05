@@ -17,9 +17,22 @@ estado = {
 client.publish_status(estado)
 ```
 
+## Obtener un Estado
+
+```python
+status_data = client.get_status("status_id_aqui")
+```
+
+## Borrar un Estado
+
+```python
+client.delete_status("status_id_aqui")
+```
+
 ## Interacción con Usuarios
 
 - `follow_user(phone_number)`: Comienza a seguir las historias de alguien. Te empezarán a llegar por medio del decorador `@client.on_status` si lo defines.
 - `unfollow_user(phone_number)`: Deja de seguir las historias de un usuario.
-- `get_followers()`: Pide a la API de ToDus la lista de personas que pueden ver tus historias publicadas. Retorna de forma síncrona una lista con los números de teléfono (ej. `['5351234567', ...]`).
-- `get_following()`: Pide a la API la lista de personas a las que sigues. Retorna de forma síncrona una lista con los números de teléfono.
+- `get_followers(phone_number="", limit=20, offset=0)`: Pide a la API de ToDus la lista de personas que pueden ver tus historias publicadas. Retorna de forma síncrona una lista con los números de teléfono (ej. `['5351234567', ...]`).
+- `get_following(phone_number="", limit=20, offset=0)`: Pide a la API la lista de personas a las que sigues. Retorna de forma síncrona una lista con los números de teléfono.
+- `get_follower_info(phone_number)`: Obtiene información sobre la relación de seguimiento con un usuario.

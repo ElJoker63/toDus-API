@@ -37,7 +37,7 @@ class ToDusProfileMixin:
             return bytes(result)
 
         headers = {
-            "Authorization": token,
+            "Authorization": f"Bearer {token}",
             "User-Agent": "ToDus 2.1.2 Auth",
             "Content-Type": "application/x-protobuf",
         }
@@ -57,7 +57,7 @@ class ToDusProfileMixin:
 
         try:
             resp = self.session.post(
-                "https://auth.todus.cu/v2/todus/users.me",
+                "https://chat.todus.cu/v2/todus/users.me",
                 data=bytes(payload),
                 headers=headers,
                 timeout=30,

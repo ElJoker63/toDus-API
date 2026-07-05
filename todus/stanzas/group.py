@@ -300,3 +300,139 @@ def group_set_members_iq(to: str, affiliations: dict[str, str], msg_id: str = ""
         f"<query xmlns='x11'>{users_xml}</query>"
         f"</iq>"
     )
+
+
+def group_voice_message(to: str, url: str, voice_id: str, file_size: int, duration: int, wave_sample: str = "", msg_id: str = "", reply_to: str = "") -> str:
+    """Stanza con nota de voz para grupo MUC Light."""
+    mid = msg_id or _generate_msg_id()
+    vid = voice_id or _generate_msg_id()
+    url_esc = util.escape_xml(url)
+    ws_esc = util.escape_xml(wave_sample)
+    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
+    return (
+        f"<m o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<voice xmlns='voice:n' i='{vid}' mi='{mid}' url='{url_esc}' s='{file_size}' h='' d='{duration}' ws='{ws_esc}'/>"
+        f"<k xmlns='x8'/>"
+        f"{reply_xml}"
+        f"<b/>"
+        f"</m>"
+    )
+
+
+def group_audio_message(to: str, url: str, audio_id: str, file_name: str, file_size: int, duration: int, msg_id: str = "", reply_to: str = "") -> str:
+    """Stanza con audio para grupo MUC Light."""
+    mid = msg_id or _generate_msg_id()
+    aid = audio_id or _generate_msg_id()
+    name_esc = util.escape_xml(file_name)
+    url_esc = util.escape_xml(url)
+    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
+    return (
+        f"<m o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<audio xmlns='audio:n' i='{aid}' mi='{mid}' url='{url_esc}' s='{file_size}' h='' d='{duration}' n='{name_esc}'/>"
+        f"<k xmlns='x8'/>"
+        f"{reply_xml}"
+        f"<b/>"
+        f"</m>"
+    )
+
+
+def group_gif_message(to: str, url: str, gif_id: str, file_name: str, file_size: int, width: int = 0, height: int = 0, thumbnail: str = "", msg_id: str = "", reply_to: str = "") -> str:
+    """Stanza con GIF para grupo MUC Light."""
+    mid = msg_id or _generate_msg_id()
+    gid = gif_id or _generate_msg_id()
+    name_esc = util.escape_xml(file_name)
+    url_esc = util.escape_xml(url)
+    tnail = util.escape_xml(thumbnail) if thumbnail else ""
+    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
+    wh_attrs = ""
+    if width > 0:
+        wh_attrs += f" w='{width}'"
+    if height > 0:
+        wh_attrs += f" he='{height}'"
+    return (
+        f"<m o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<gif xmlns='gif:n' i='{gid}' mi='{mid}' url='{url_esc}' n='{name_esc}' s='{file_size}' h='' tnail='{tnail}'{wh_attrs}/>"
+        f"<k xmlns='x8'/>"
+        f"{reply_xml}"
+        f"<b/>"
+        f"</m>"
+    )
+
+
+def group_forward_message(to: str, original_from: str, original_id: str, msg_id: str = "", reply_to: str = "") -> str:
+    """Stanza para reenviar un mensaje en grupo."""
+    mid = msg_id or _generate_msg_id()
+    rid = _generate_msg_id()
+    reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
+    return (
+        f"<m o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<k xmlns='x8'/>"
+        f"{reply_xml}"
+        f"<resend xmlns='resend:n' i='{rid}' mi='{original_id}' uowner='{original_from}'/>"
+        f"<b/>"
+        f"</m>"
+    )
+
+
+def group_deleted_owner_message(to: str, message_id: str, msg_id: str = "") -> str:
+    """Stanza para eliminar un mensaje propio en grupo."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<m o='{to}' t='gc' i='{mid}' xmlns='jc'>"
+        f"<k xmlns='x8'/>"
+        f"<deletedowner xmlns='deletedowner:n' mi='{message_id}'/>"
+        f"<b/>"
+        f"</m>"
+    )
+
+
+def group_info_by_id_iq(group_id: str, msg_id: str = "") -> str:
+    """Stanza IQ para obtener información de un grupo por su ID."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<iq o='{group_id}@muclight.im.todus.cu' t='get' i='{mid}'>"
+        f"<query xmlns='x10'/>"
+        f"</iq>"
+    )
+
+
+def group_info_by_link_iq(invite_link: str, msg_id: str = "") -> str:
+    """Stanza IQ para obtener información de un grupo por su enlace de invitación."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<iq t='get' i='{mid}'>"
+        f"<query xmlns='x10' link='{util.escape_xml(invite_link)}'/>"
+        f"</iq>"
+    )
+
+
+def group_list_paginated_iq(limit: int = 20, offset: int = 0, msg_id: str = "") -> str:
+    """Stanza IQ para obtener la lista paginada de grupos."""
+    mid = msg_id or _generate_msg_id()
+    return (
+        f"<iq t='get' i='{mid}'>"
+        f"<query xmlns='x10:list' limit='{limit}' offset='{offset}'/>"
+        f"</iq>"
+    )
+
+
+def group_promote_admin_iq(to: str, user_phone: str, msg_id: str = "") -> str:
+    """Stanza IQ para promover a un miembro a administrador."""
+    mid = msg_id or _generate_msg_id()
+    user_jid = f"{user_phone}@im.todus.cu"
+    return (
+        f"<iq o='{to}' t='set' i='{mid}'>"
+        f"<query xmlns='x11'><user affiliation='admin'>{user_jid}</user></query>"
+        f"</iq>"
+    )
+
+
+def group_demote_admin_iq(to: str, user_phone: str, msg_id: str = "") -> str:
+    """Stanza IQ para degradar un administrador a participante."""
+    mid = msg_id or _generate_msg_id()
+    user_jid = f"{user_phone}@im.todus.cu"
+    return (
+        f"<iq o='{to}' t='set' i='{mid}'>"
+        f"<query xmlns='x11'><user affiliation='participant'>{user_jid}</user></query>"
+        f"</iq>"
+    )

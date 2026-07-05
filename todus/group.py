@@ -258,6 +258,74 @@ class GroupClient:
         
         return mid
 
+    def send_voice(self, group_id: str, url: str, voice_id: str,
+                   file_size: int, duration: int, wave_sample: str = "",
+                   msg_id: str = "") -> str:
+        """Enviar nota de voz a un grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        msg = stanza.group_voice_message(group_jid, url, voice_id, file_size, duration, wave_sample, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
+
+    def send_audio(self, group_id: str, url: str, audio_id: str,
+                   file_name: str, file_size: int, duration: int,
+                   msg_id: str = "") -> str:
+        """Enviar audio a un grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        msg = stanza.group_audio_message(group_jid, url, audio_id, file_name, file_size, duration, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
+
+    def send_gif(self, group_id: str, url: str, gif_id: str,
+                 file_name: str, file_size: int, width: int = 0,
+                 height: int = 0, thumbnail: str = "",
+                 msg_id: str = "") -> str:
+        """Enviar GIF a un grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        msg = stanza.group_gif_message(group_jid, url, gif_id, file_name, file_size, width, height, thumbnail, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
+
+    def forward_message(self, group_id: str, original_from: str,
+                        original_id: str, msg_id: str = "") -> str:
+        """Reenviar un mensaje en grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = msg_id or self._generate_msg_id()
+        
+        msg = stanza.group_forward_message(group_jid, original_from, original_id, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(msg.encode())
+        
+        return mid
+
     def set_name(self, group_id: str, name: str, msg_id: str = "") -> str:
         """Actualizar el nombre del grupo."""
         if not self.client.token:
@@ -377,6 +445,64 @@ class GroupClient:
     def kick_member(self, group_id: str, user_phone: str, msg_id: str = "") -> str:
         """Expulsar a un miembro del grupo (asignar rol 'none')."""
         return self.set_member_role(group_id, user_phone, "none", msg_id=msg_id)
+
+    def get_group_info_by_id(self, group_id: str) -> dict:
+        """Obtiene información de un grupo por su ID de forma síncrona."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        stanza_str = stanza.group_info_by_id_iq(group_id)
+        return self.client.send_iq_and_wait(stanza_str)
+
+    def get_group_info_by_link(self, invite_link: str) -> dict:
+        """Obtiene información de un grupo por su enlace de invitación de forma síncrona."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        stanza_str = stanza.group_info_by_link_iq(invite_link)
+        return self.client.send_iq_and_wait(stanza_str)
+
+    def get_group_list_paginated(self, limit: int = 20, offset: int = 0) -> list[str]:
+        """Obtiene la lista paginada de grupos del usuario de forma síncrona."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        stanza_str = stanza.group_list_paginated_iq(limit, offset)
+        res = self.client.send_iq_and_wait(stanza_str)
+        query = res.get("query", "") or res.get("query_attrs", "")
+        groups = []
+        for match in re.finditer(r"<item\s+jid=['\"]([^'\"]+)['\"]", query):
+            jid = match.group(1)
+            groups.append(jid.split("@")[0])
+        return groups
+
+    def promote_admin(self, group_id: str, user_phone: str) -> str:
+        """Promueve a un miembro a administrador del grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = self._generate_msg_id()
+        iq_msg = stanza.group_promote_admin_iq(group_jid, user_phone, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(iq_msg.encode())
+        
+        return mid
+
+    def demote_admin(self, group_id: str, user_phone: str) -> str:
+        """Degradar un administrador a participante del grupo."""
+        if not self.client.token:
+            raise AuthenticationError("No autenticado")
+        
+        group_jid = self._get_group_jid(group_id)
+        mid = self._generate_msg_id()
+        iq_msg = stanza.group_demote_admin_iq(group_jid, user_phone, msg_id=mid)
+        
+        with self.client._xmpp_session(self.client.token) as sock:
+            sock.send(iq_msg.encode())
+        
+        return mid
 
     def edit_message(self, group_id: str, new_body: str, 
                      original_msg_id: str) -> str:

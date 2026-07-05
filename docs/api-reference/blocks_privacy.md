@@ -13,11 +13,24 @@ Define la privacidad global de tu perfil.
 client.set_profile_privacy(profile_photo="nobody", last="contacts", info="everyone")
 ```
 
+### `get_profile_privacy()`
+Obtiene la configuración actual de privacidad de tu perfil.
+```python
+privacy = client.get_profile_privacy()
+# Output: {"profile_photo": "everyone", "last": "contacts", "info": "everyone"}
+```
+
 ### `set_group_privacy(who_can, exceptions)`
 Establece quién puede añadirte a nuevos grupos sin tu permiso.
 ```python
 # Solo los contactos pueden agregarte a grupos
 client.set_group_privacy(who_can="contacts", exceptions="")
+```
+
+### `get_group_privacy()`
+Obtiene la configuración actual de privacidad de grupos.
+```python
+group_privacy = client.get_group_privacy()
 ```
 
 ---
@@ -35,3 +48,13 @@ Desbloquea a un usuario previamente bloqueado.
 
 ### `get_block_list()`
 Obtiene la lista completa de todos los usuarios que tienes bloqueados. Retorna de forma síncrona una lista de cadenas con los números de teléfono bloqueados.
+```python
+blocked = client.get_block_list()
+# Output: ["5351111111", "5352222222"]
+```
+
+### `get_block_list_paginated(limit=20, offset=0)`
+Obtiene la lista de bloqueados de forma paginada.
+```python
+blocked = client.get_block_list_paginated(limit=10, offset=0)
+```

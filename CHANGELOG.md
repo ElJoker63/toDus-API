@@ -5,6 +5,39 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.0] - 2026-07-05
+### Fixed
+- 🛠️ **Puerto XMPP corregido**: Puerto de conexión cambiado de `5222` a `1756` para coincidir con el servidor de producción de ToDus.
+- 🛠️ **Auth headers corregidos**: Agregado `Authorization: Bearer {token}` en peticiones de subida S3 y actualización de perfil.
+- 🛠️ **Profile URL corregida**: Endpoint de actualización de perfil cambiado de `auth.todus.cu` a `chat.todus.cu/v2/todus/users.me`.
+- 🛠️ **Button attributes**: Los botones interactivos ahora incluyen los atributos `i` (ID) y `mi` (message ID) requeridos por el protocolo.
+- 🛠️ **Upload query**: Corregido el atributo `room` y `n` (nombre de archivo) en la consulta de reserva de subida.
+
+### Added
+- ✨ **Notas de voz**: Nuevos métodos `send_voice_message()` y `group_voice_message()` con soporte para wave sample.
+- ✨ **Audio**: Nuevos métodos `send_audio_message()` y `group_audio_message()` para archivos de audio con duración.
+- ✨ **GIFs**: Nuevos métodos `send_gif_message()` y `group_gif_message()` para GIFs animados con dimensiones y thumbnail.
+- ✨ **Reenvío de mensajes**: Nuevos métodos `forward_message()` y `group_forward_message()` usando la extensión `resend:n`.
+- ✨ **Eliminar propio**: Nuevo método `send_deleted_owner_message()` usando `deletedowner:n`.
+- ✨ **Fragmentación**: Nuevo stanza `chunk_message()` para mensajes grandes (`msg:fragment:n`).
+- ✨ **Refresh ToDus ID**: Nuevo stanza `refresh_todus_id()` para cambio de ID ToDus.
+- ✨ **Roster (Contactos)**: Nuevo módulo `stanzas/roster.py` con soporte completo para gestión de contactos: `get_roster_paginated()`, `add_roster_entry()`, `delete_roster_entry()`, `get_todus_id()`, `edit_todus_id()`, `get_users_info()`.
+- ✨ **Push (Firebase)**: Nuevo módulo `stanzas/push.py` con `register_push()` y `unregister_push()`.
+- ✨ **Versión**: Nuevo módulo `stanzas/version.py` con `get_update_info()`.
+- ✨ **Admin de Canales**: Nuevo módulo `stanzas/channel_admin.py` con `get_channel_admins_iq()`, `add_channel_admin_iq()`, `remove_channel_admin_iq()`, `edit_channel_publication_iq()`, `delete_channel_publication_iq()`.
+- ✨ **Grupos avanzados**: Nuevos métodos `get_group_info_by_id()`, `get_group_info_by_link()`, `get_group_list_paginated()`, `promote_admin()`, `demote_admin()`.
+- ✨ **REST API**: Nuevo módulo `client/rest.py` con endpoints oficiales:
+  - **Stickers**: `get_sticker_packs()`, `get_sticker_pack_info()`
+  - **Certified/Cards**: `get_certified_info()`, `subscribe_certified()`, `unsubscribe_certified()`
+  - **Linked Devices**: `get_linked_devices()`, `logout_linked_device()`
+  - **Report**: `report_message()`
+  - **Link Preview**: `get_link_preview()`
+  - **Version**: `check_app_version()`
+- ✨ **Cliente methods**: Nuevos métodos en `ToDusClient2`: `get_roster()`, `add_contact()`, `delete_contact()`, `get_todus_id()`, `edit_todus_id()`, `get_users_info()`, `get_block_list_paginated()`.
+- ✨ **Parser expandido**: Soporte para parsing de voice, audio, gif, resend/forward, deleted_owner, chunk, refresh_todus_id.
+- ✨ **Tipos expandidos**: `FileType` ahora incluye PRODUCT, BACKUP, NEWS, STREAM_VIDEO, STATUS_IMAGE. `ButtonCommand` ahora incluye 7 comandos adicionales del Android.
+- ✨ **Constantes**: Agregadas URLs base (`AUTH_URL`, `CHAT_URL`, `CLIENT_URL`, `S3_URL`, `STICKERS_URL`, `CATALOGUE_URL`), `MAX_MSG_TEXT_SIZE`, `MAX_MESSAGE_LENGTH`, `STATUS_NAMESPACE`, `REACTION_NAMESPACE`.
+
 ## [1.5.8] - 2026-06-23
 ### Fixed
 - 🛠️ **Alineación de Argumentos**: Corregido error de desajuste de parámetros posicionales en los métodos de mensajería multimedia (`send_image_message`, `send_video_message`) de `ToDusClient2`. Ahora utilizan argumentos con nombre explícitos para mayor robustez.
@@ -247,3 +280,4 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 [1.2.0]: https://github.com/ElJoker63/toDus-API/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/ElJoker63/toDus-API/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/ElJoker63/toDus-API/releases/tag/v1.0.0
+[1.6.0]: https://github.com/ElJoker63/toDus-API/compare/v1.5.8...v1.6.0

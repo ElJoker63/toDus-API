@@ -15,9 +15,9 @@ def iq(type_: str, iq_id: str, payload: str = "", to: str = "") -> str:
     return f"<iq i='{iq_id}' t='{type_}'{to_attr}>{payload}</iq>"
 
 
-def build_iq(type_: str, to: str, query: str) -> str:
+def build_iq(type_: str, to: str, query: str, msg_id: str = "") -> str:
     """Helper para construir iq con id autogenerado."""
-    iq_id = util.generate_token(12)
+    iq_id = msg_id or util.generate_token(12)
     return iq(type_, iq_id, query, to)
 
 
@@ -108,14 +108,15 @@ def mam_query(query_id: str, since: str = "", before: str = "", limit: int = 50)
     )
 
 
-def upload_query(iq_id: str, size: int, file_type: int, persistent: bool = False, file_name: str = "") -> str:
+def upload_query(iq_id: str, size: int, file_type: int, persistent: bool = False, file_name: str = "", room: str = "") -> str:
     """Reserva URL de subida."""
     persist = "true" if persistent else "false"
     n_attr = f" n='{util.escape_xml(file_name)}'" if file_name else ""
+    room_attr = f" room='{room}'" if room else ""
     return (
         f"<iq i='{iq_id}-3' t='get'>"
         f"<query xmlns='todus:purl' type='{file_type}' "
-        f"persistent='{persist}' size='{size}' room=''{n_attr}></query>"
+        f"persistent='{persist}' size='{size}'{room_attr}{n_attr}></query>"
         f"</iq>"
     )
 

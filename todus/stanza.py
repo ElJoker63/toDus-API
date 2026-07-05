@@ -14,6 +14,13 @@ from .stanzas.private import (
     delete_message,
     location_message,
     event_message,
+    voice_message,
+    audio_message,
+    gif_message,
+    forward_message,
+    deleted_owner_message,
+    chunk_message,
+    refresh_todus_id,
 )
 
 from .stanzas.group import (
@@ -27,6 +34,16 @@ from .stanzas.group import (
     group_delete_message,
     group_location_message,
     group_event_message,
+    group_voice_message,
+    group_audio_message,
+    group_gif_message,
+    group_forward_message,
+    group_deleted_owner_message,
+    group_info_by_id_iq,
+    group_info_by_link_iq,
+    group_list_paginated_iq,
+    group_promote_admin_iq,
+    group_demote_admin_iq,
 )
 
 from .stanzas.presence import (
@@ -54,3 +71,4 @@ from .stanzas.utils import (
 )
 
 from .stanzas import block, privacy, status, last, profile, channels
+from .stanzas import roster, push, version, channel_admin

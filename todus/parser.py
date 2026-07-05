@@ -48,6 +48,23 @@ def parse_todus_message(stanza: str) -> dict:
         "video_width": 0,
         "video_height": 0,
         "video_thumbnail": "",
+        "audio_id": "",
+        "audio_url": "",
+        "audio_name": "",
+        "audio_size": 0,
+        "audio_duration": 0,
+        "voice_id": "",
+        "voice_url": "",
+        "voice_size": 0,
+        "voice_duration": 0,
+        "voice_wave_sample": "",
+        "gif_id": "",
+        "gif_url": "",
+        "gif_name": "",
+        "gif_size": 0,
+        "gif_width": 0,
+        "gif_height": 0,
+        "gif_thumbnail": "",
         "image_width": 0,
         "image_height": 0,
         "image_thumbnail": "",
@@ -55,6 +72,13 @@ def parse_todus_message(stanza: str) -> dict:
         "offline_ts": "",
         "edited": "",
         "deleted": "",
+        "deleted_owner": "",
+        "forward_from": "",
+        "forward_id": "",
+        "chunk_msg": "",
+        "chunk_index": 0,
+        "chunk_total": 0,
+        "refresh_todus_id": "",
         "chat_state": "",
         "receipt": "",
         "receipt_type": "",
@@ -273,6 +297,99 @@ def parse_todus_message(stanza: str) -> dict:
             read_tag = read_match.group(0)
             result["receipt"] = _attr(read_tag, "i") or _attr(read_tag, "id")
             result["receipt_type"] = "read"
+
+    # Audio adjunto
+    audio_match = re.search(r"<audio\b[^>]*>", stanza)
+    if audio_match:
+        audio_tag = audio_match.group(0)
+        result["audio_id"] = _attr(audio_tag, "i") or _attr(audio_tag, "id")
+        result["message_file_id"] = _attr(audio_tag, "mi")
+        result["audio_url"] = _attr(audio_tag, "url")
+        result["audio_name"] = util.unescape_xml(_attr(audio_tag, "n"))
+        try:
+            result["audio_size"] = int(_attr(audio_tag, "s"))
+        except (ValueError, TypeError):
+            result["audio_size"] = 0
+        try:
+            result["audio_duration"] = int(_attr(audio_tag, "d"))
+        except (ValueError, TypeError):
+            result["audio_duration"] = 0
+        result["file_hash"] = _attr(audio_tag, "h")
+
+    # Voice adjunto
+    voice_match = re.search(r"<voice\b[^>]*>", stanza)
+    if voice_match:
+        voice_tag = voice_match.group(0)
+        result["voice_id"] = _attr(voice_tag, "i") or _attr(voice_tag, "id")
+        result["message_file_id"] = _attr(voice_tag, "mi")
+        result["voice_url"] = _attr(voice_tag, "url")
+        try:
+            result["voice_size"] = int(_attr(voice_tag, "s"))
+        except (ValueError, TypeError):
+            result["voice_size"] = 0
+        try:
+            result["voice_duration"] = int(_attr(voice_tag, "d"))
+        except (ValueError, TypeError):
+            result["voice_duration"] = 0
+        result["voice_wave_sample"] = _attr(voice_tag, "ws")
+        result["file_hash"] = _attr(voice_tag, "h")
+
+    # GIF adjunto
+    gif_match = re.search(r"<gif\b[^>]*>", stanza)
+    if gif_match:
+        gif_tag = gif_match.group(0)
+        result["gif_id"] = _attr(gif_tag, "i") or _attr(gif_tag, "id")
+        result["message_file_id"] = _attr(gif_tag, "mi")
+        result["gif_url"] = _attr(gif_tag, "url")
+        result["gif_name"] = util.unescape_xml(_attr(gif_tag, "n"))
+        try:
+            result["gif_size"] = int(_attr(gif_tag, "s"))
+        except (ValueError, TypeError):
+            result["gif_size"] = 0
+        try:
+            result["gif_width"] = int(_attr(gif_tag, "w"))
+        except (ValueError, TypeError):
+            result["gif_width"] = 0
+        try:
+            result["gif_height"] = int(_attr(gif_tag, "he"))
+        except (ValueError, TypeError):
+            result["gif_height"] = 0
+        result["gif_thumbnail"] = _attr(gif_tag, "tnail")
+        result["file_hash"] = _attr(gif_tag, "h")
+
+    # Resend/Forward
+    resend_match = re.search(r"<resend\b[^>]*>", stanza)
+    if resend_match:
+        resend_tag = resend_match.group(0)
+        result["forward_id"] = _attr(resend_tag, "i") or _attr(resend_tag, "id")
+        result["forward_from"] = _attr(resend_tag, "uowner")
+        result["message_file_id"] = _attr(resend_tag, "mi")
+
+    # Deleted owner
+    deletedowner_match = re.search(r"<deletedowner\b[^>]*>", stanza)
+    if deletedowner_match:
+        deletedowner_tag = deletedowner_match.group(0)
+        result["deleted_owner"] = _attr(deletedowner_tag, "mi")
+
+    # Chunk
+    chunk_match = re.search(r"<chunk\b[^>]*>", stanza)
+    if chunk_match:
+        chunk_tag = chunk_match.group(0)
+        result["chunk_msg"] = _attr(chunk_tag, "msg")
+        try:
+            result["chunk_index"] = int(_attr(chunk_tag, "index"))
+        except (ValueError, TypeError):
+            result["chunk_index"] = 0
+        try:
+            result["chunk_total"] = int(_attr(chunk_tag, "total"))
+        except (ValueError, TypeError):
+            result["chunk_total"] = 0
+
+    # Refresh ToDus ID
+    refresh_match = re.search(r"<refresht\b[^>]*>", stanza)
+    if refresh_match:
+        refresh_tag = refresh_match.group(0)
+        result["refresh_todus_id"] = _attr(refresh_tag, "todus_id")
 
     return result
 

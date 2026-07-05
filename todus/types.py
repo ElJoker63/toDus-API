@@ -12,6 +12,11 @@ class FileType(IntEnum):
     PICTURE = 4
     PROFILE = 5
     PROFILE_THUMBNAIL = 6
+    PRODUCT = 7
+    BACKUP = 8
+    NEWS = 9
+    STREAM_VIDEO = 10
+    STATUS_IMAGE = 11
 
 
 class ChatState(StrEnum):
@@ -52,3 +57,10 @@ class ButtonCommand(StrEnum):
     URL = "cmd_type_url"
     COPY = "cmd_type_copy"
     CALL = "cmd_type_call"
+    ADD_SHORTCUT = "cmd_add_shortcut"
+    COPY_TO_CLIPBOARD = "cmd_copy_to_clipboard"
+    OPEN_APP_SCREEN = "cmd_open_app_screen"
+    OPEN_WEB = "cmd_open_web"
+    PLACEHOLDER = "cmd_placeholder"
+    PLACEHOLDER_CONTACT_SEND = "cmd_placeholder_contact_send"
+    PLACEHOLDER_SEND = "cmd_placeholder_send"
