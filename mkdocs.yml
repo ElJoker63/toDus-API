@@ -63,3 +63,4 @@ nav:
     - Bloqueos y Privacidad: api-reference/blocks_privacy.md
     - Llamadas (WebRTC): api-reference/calls.md
     - Avanzado (Ubicación, Last): api-reference/advanced.md
+    - Eventos, Colas y Rate Limit: api-reference/events_queue.md
