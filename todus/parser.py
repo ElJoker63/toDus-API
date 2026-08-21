@@ -492,9 +492,7 @@ class IncrementalParser:
             return []
 
         self._buffer += chunk
-        stanzas = []
-        seen_raw = set()
-
+        matches = []
         patterns = [
             (r"<m\b.*?</m>", parse_todus_message),
             (r"<p\b.*?</p>", parse_presence),
@@ -504,26 +502,23 @@ class IncrementalParser:
 
         for pattern, parser_fn in patterns:
             for match in re.finditer(pattern, self._buffer, re.DOTALL):
-                stanza_str = match.group(0)
-                if stanza_str in seen_raw:
-                    continue
-                seen_raw.add(stanza_str)
-                try:
-                    parsed = parser_fn(stanza_str)
-                    stanzas.append(parsed)
-                except Exception:
-                    pass
+                matches.append((match.start(), match.end(), match.group(0), parser_fn))
 
-        # Limpiar buffer hasta el final de la última stanza procesada
-        if stanzas:
-            last_end = 0
-            for s in stanzas:
-                raw = s.get("raw", "")
-                idx = self._buffer.find(raw)
-                if idx >= 0:
-                    end = idx + len(raw)
-                    if end > last_end:
-                        last_end = end
+        matches.sort(key=lambda x: x[0])
+
+        stanzas = []
+        last_end = 0
+        for start, end, stanza_str, parser_fn in matches:
+            if start < last_end:
+                continue
+            try:
+                parsed = parser_fn(stanza_str)
+                stanzas.append(parsed)
+                last_end = end
+            except Exception:
+                pass
+
+        if last_end > 0:
             self._buffer = self._buffer[last_end:]
 
         # Evitar crecimiento infinito de basura no-XML

@@ -3,6 +3,7 @@ import re
 import socket
 import ssl
 import string
+import threading
 from base64 import b64encode
 from contextlib import contextmanager
 import requests
@@ -41,6 +42,11 @@ class ToDusClientBase:
                 "https": self.proxy,
             }
         self._xml_parser = parser.IncrementalParser()
+        from ..rate_limiter import RateLimiter
+        self.rate_limiter = RateLimiter(max_per_second=2.0)
+        self._persistent_sock = None
+        self._persistent_token = ""
+        self._sock_lock = threading.Lock()
 
     def _parse_proxy(self, proxy_url: str):
         from urllib.parse import urlparse
@@ -121,7 +127,6 @@ class ToDusClientBase:
             match = re.search(r"(53\d{8})", token)
             if match:
                 phone = match.group(1)
-        # Auth string format for ToDus: \0phone\0token
         authstr_raw = f"\0{phone}\0{token}"
         authstr = b64encode(authstr_raw.encode("utf-8"))
         return phone, authstr
@@ -131,7 +136,7 @@ class ToDusClientBase:
 
         if phase == "init":
             if "<stream:features><es xmlns='x2'>" in response or "<stream:features>" in response:
-                sock.send(stanza.sasl_auth(authstr))
+                sock.send(stanza.sasl_auth(authstr).encode())
                 state["phase"] = "auth_sent"
                 return True
             if response.startswith("<?xml"):
@@ -168,7 +173,7 @@ class ToDusClientBase:
         sid = util.generate_token(5)
         state = {"phase": "init"}
 
-        for _ in range(20): # Límite de intentos para evitar bucles infinitos
+        for _ in range(20):
             response = self._recv_all(sock)
             if response is None:
                 raise ConnectionLostError("Servidor cerró la conexión durante el apretón de manos")
@@ -181,22 +186,61 @@ class ToDusClientBase:
 
     # --- Context Manager XMPP ---
 
+    def close_persistent_connection(self) -> None:
+        """Cierra explícitamente la conexión persistente actual si existe."""
+        with self._sock_lock:
+            if self._persistent_sock:
+                try:
+                    self._persistent_sock.send(stanza.stream_close().encode())
+                except Exception:
+                    pass
+                try:
+                    self._persistent_sock.close()
+                except Exception:
+                    pass
+                self._persistent_sock = None
+                self._persistent_token = ""
+
     @contextmanager
-    def _xmpp_session(self, token: str):
-        sock = self._connect_xmpp()
+    def _xmpp_session(self, token: str, reuse: bool = True):
+        self.rate_limiter.wait()
+        with self._sock_lock:
+            sock = None
+            if reuse and self._persistent_sock and self._persistent_token == token:
+                try:
+                    # Verificar salud del socket con getpeername
+                    self._persistent_sock.getpeername()
+                    sock = self._persistent_sock
+                except OSError:
+                    self.close_persistent_connection()
+
+            if sock is None:
+                sock = self._connect_xmpp()
+                try:
+                    self._handshake(sock, token)
+                    sock.send(stanza.presence().encode())
+                    if reuse:
+                        self._persistent_sock = sock
+                        self._persistent_token = token
+                except Exception:
+                    try:
+                        sock.close()
+                    except Exception:
+                        pass
+                    raise
+
         try:
-            self._handshake(sock, token)
-            sock.send(stanza.presence().encode())
             yield sock
+        except (OSError, ConnectionLostError):
+            self.close_persistent_connection()
+            raise
         finally:
-            try:
-                sock.send(stanza.stream_close().encode())
-            except Exception:
-                pass
-            try:
-                sock.close()
-            except Exception:
-                pass
+            if not reuse:
+                try:
+                    sock.send(stanza.stream_close().encode())
+                    sock.close()
+                except Exception:
+                    pass
 
     @property
     def logged(self) -> bool:

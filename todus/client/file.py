@@ -123,7 +123,7 @@ class ToDusFileMixin:
                 
         return down_url
 
-    def download_file(self, token: str, url: str, path: str) -> int:
+    def download_file(self, token: str, url: str, path: str, max_retries: int = 10) -> int:
         real_url = self.get_real_download_url(token, url)
         if not real_url:
             raise UploadError("No se pudo obtener URL real de descarga")
@@ -134,12 +134,14 @@ class ToDusFileMixin:
         }
         temp_path = path + ".part"
         size = -1
-        retries = 5
+        retries = max_retries
+        success = False
         
         with open(temp_path, "ab") as f:
             while retries > 0:
                 pos = f.tell()
                 if size != -1 and pos >= size:
+                    success = True
                     break
                     
                 if pos > 0:
@@ -148,6 +150,7 @@ class ToDusFileMixin:
                 try:
                     with self.session.get(real_url, headers=headers, stream=True, timeout=60) as resp:
                         if resp.status_code == 416: # Range not satisfiable
+                            success = True
                             break
                         resp.raise_for_status()
                         
@@ -158,18 +161,25 @@ class ToDusFileMixin:
                         for chunk in resp.iter_content(chunk_size=16384):
                             if chunk:
                                 f.write(chunk)
+                    success = True
                     break # Éxito
                 except Exception as e:
-                    logger.warning(f"Error en descarga (reintentando): {e}")
                     retries -= 1
+                    logger.warning(f"Error en descarga (reintento {max_retries - retries}/{max_retries}): {e}")
+                    if retries <= 0:
+                        raise UploadError(f"Descarga fallida tras {max_retries} reintentos: {e}")
                     time.sleep(3)
         
+        if not success and (size != -1 and os.path.getsize(temp_path) < size):
+            raise UploadError("La descarga no se completó correctamente")
+
         if os.path.exists(path):
             os.remove(path)
         os.rename(temp_path, path)
         return os.path.getsize(path)
 
     def download_file_to_folder(self, token: str, url: str, folder: str, filename: str = "") -> tuple[int, str]:
+        os.makedirs(folder, exist_ok=True)
         if not filename:
             filename = os.path.basename(url.split("?")[0]) or "download"
         

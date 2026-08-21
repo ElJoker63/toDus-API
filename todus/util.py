@@ -139,9 +139,25 @@ def get_image_dimensions(data: bytes) -> tuple[int, int]:
     return width, height
 
 
-def generate_blurhash(width: int, height: int) -> str:
-    """Genera un BlurHash genérico para ToDus."""
-    return "LFE_@w00ay00ay00ay00ay00ay00ay"
+def generate_blurhash(width: int, height: int, image_bytes: bytes | None = None) -> str:
+    """Genera un BlurHash dinámico para ToDus."""
+    if image_bytes:
+        try:
+            import blurhash
+            from PIL import Image
+            import io
+            img = Image.open(io.BytesIO(image_bytes))
+            img.thumbnail((100, 100))
+            return blurhash.encode(img, x_components=4, y_components=3)
+        except Exception:
+            pass
+
+    # Generar un hash visual dinámico a partir de las dimensiones y semilla
+    seed = f"{width}x{height}"
+    digest = hashlib.md5(seed.encode()).hexdigest()[:10]
+    base_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#$_"
+    blur_body = "".join(base_chars[int(digest[i:i+2], 16) % len(base_chars)] for i in range(0, 10, 2))
+    return f"L{digest[:3]}@w{blur_body}00ay"
 
 
 def sanitize_filename(filename: str, file_type: int = 0) -> str:

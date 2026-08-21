@@ -83,9 +83,11 @@ def stream_close() -> str:
     return "</stream:stream>"
 
 
-def sasl_auth(authstr: bytes) -> bytes:
+def sasl_auth(authstr: bytes | str) -> str:
     """SASL PLAIN auth."""
-    return b"<ah xmlns='ah:ns' e='PLAIN'>" + authstr + b"</ah>"
+    if isinstance(authstr, bytes):
+        authstr = authstr.decode("utf-8")
+    return f"<ah xmlns='ah:ns' e='PLAIN'>{authstr}</ah>"
 
 
 def bind(iq_id: str) -> str:

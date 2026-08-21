@@ -5,6 +5,32 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.1] - 2026-08-20
+### Fixed
+- 🔴 **EventBus JID filter**: `PhoneFilter` normaliza y extrae el número de teléfono del JID completo (`5312345678@im.todus.cu/resource`) eliminando dominio y recurso.
+- 🔴 **Bucle infinito en `download_file`**: Agregado límite de reintentos (`max_retries = 10`) y manejo de error con `UploadError` en descargas fallidas.
+- 🔴 **Tag Protobuf 0x12 duplicado**: Eliminado payload redundante de 150 bytes en `login()` que sobreescribía la contraseña.
+- 🟠 **Conexión XMPP Persistente**: Reutilización de sockets TLS en llamadas de envío consecutivas evitando relanzar handshakes en cada mensaje.
+- 🟠 **`listen_messages` backoff & shutdown**: Soporte para `stop_event` y reconexión con backoff exponencial (2s a 60s).
+- 🟠 **Enriquecimiento de mensajes de grupo**: Procesamiento automático de mensajes MUC Light (`type="gc"`) en el bucle de escucha.
+- 🟠 **Worker de Reintentos de Cola**: Implementado el loop de reintentos automático en `MessageQueue`.
+- 🟠 **Detección `_is_group_target`**: Clasificación robusta de números telefónicos (`+53512345678`, 8 y 10 dígitos) frente a JIDs de grupo MUC Light.
+- 🟡 **`ToDusChannelMixin` herencia**: Corregida la definición de `ToDusChannelMixin` eliminando la herencia directa de `ToDusClientBase`.
+- 🟡 **Escape XML**: Caracteres especiales escapados correctamente en `contact_phone` y `sticker_hash`.
+- 🟡 **BlurHash dinámico**: Generación dinámica de BlurHash según dimensiones y contenido de imagen.
+- 🟡 **Tipado de `sasl_auth`**: Función normalizada para aceptar `bytes | str` y retornar `str` de forma consistente.
+- 🟡 **Sanitización de token de login**: Extracción JWT por expresiones regulares sin caracteres de control (`\r`, `\n`, `\t`).
+- 🟡 **Rate Limiting**: Incorporado `RateLimiter` para controlar intervalos entre envíos y prevenir baneos.
+- 🟡 **Preservación de descargas parciales**: `download_file_to_folder` asegura carpetas de destino y conserva archivos `.part`.
+- 🟡 **`IncrementalParser.feed` dedup**: Procesamiento secuencial que evita ignorar mensajes duplicados legítimos.
+
+### Added
+- 🔵 **XMPP MAM (Message Archive Management)**: Método `get_message_archive()` para consultar el historial de mensajes.
+- 🔵 **WebSocket Transport**: Abstracción de transporte `WebSocketTransport` para redes restrictivas.
+- 🔵 **Persistencia de Grupos Unidos**: Almacenamiento local en SQLite (`SQLiteCache`) para conservar grupos unidos tras reinicios.
+- 🔵 **Firma `set_todus_id`**: Método `set_todus_id()` actualizado para aceptar token y expuesto en `ToDusClient2`.
+- 🔵 **Suite de Pruebas**: Nuevos tests automatizados en `tests/test_audit_fixes.py`.
+
 ## [1.6.0] - 2026-07-05
 ### Fixed
 - 🛠️ **Puerto XMPP corregido**: Puerto de conexión cambiado de `5222` a `1756` para coincidir con el servidor de producción de ToDus.

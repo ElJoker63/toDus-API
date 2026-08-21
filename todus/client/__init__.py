@@ -49,12 +49,20 @@ class ToDusClient(
 class ToDusClient2(ToDusClient):
     """Cliente con persistencia de credenciales, soporte para grupos y auto-detección de destino."""
 
-    def __init__(self, phone_number: str, password: str = "", proxy: str | None = None, **kwargs) -> None:
+    def __init__(self, phone_number: str, password: str = "", proxy: str | None = None, db_path: str = "todus_cache.db", **kwargs) -> None:
         super().__init__(proxy=proxy, **kwargs)
         self.phone_number = util.normalize_phone(phone_number) if phone_number else ""
         self.password = (password or "").strip()
         self._token = ""
         self._group_client = None
+        from ..cache import SQLiteCache, MessageQueue
+        from ..events import EventBus
+        self.cache = SQLiteCache(db_path=db_path)
+        self.queue = MessageQueue(db=self.cache, client=self)
+        self.bus = EventBus()
+        self._joined_groups: set[str] = {
+            g["group_id"] for g in self.cache.get_joined_groups()
+        }
 
     @property
     def token(self) -> str:
@@ -154,11 +162,31 @@ class ToDusClient2(ToDusClient):
 
     def _is_group_target(self, target: str) -> bool:
         """Determina si el destino es un grupo o un teléfono."""
-        if not target: return False
-        if "@" in target:
-            return "muclight" in target
-        # Los teléfonos cubanos son 10 dígitos empezando por 53
-        return not (target.isdigit() and len(target) == 10 and target.startswith("53"))
+        if not target:
+            return False
+        target_str = str(target).strip()
+        if "@" in target_str:
+            return "muclight" in target_str
+
+        if hasattr(self, "_joined_groups") and target_str in self._joined_groups:
+            return True
+
+        clean_phone = target_str.lstrip("+")
+        if clean_phone.isdigit():
+            # Número cubano de 8 dígitos (5XXXXXXX) o 10/11/12 dígitos empezando con 53
+            if len(clean_phone) == 8 and clean_phone.startswith("5"):
+                return False
+            if len(clean_phone) >= 10 and clean_phone.startswith("53"):
+                return False
+
+        # Si contiene guiones o letras -> es grupo
+        if re.search(r"[a-zA-Z-]", target_str):
+            return True
+
+        if clean_phone.isdigit() and len(clean_phone) <= 15:
+            return False
+
+        return True
 
     # --- Mensajería ---
 
@@ -414,6 +442,11 @@ class ToDusClient2(ToDusClient):
         if not self._token: raise AuthenticationError("No autenticado")
         stanza_str = stanza.roster.edit_todus_id(new_id)
         return self.send_stanza(stanza_str)
+
+    def set_todus_id(self, new_id: str, msg_id: str = "") -> str:
+        """Cambia el identificador único (@username) de la cuenta."""
+        if not self._token: raise AuthenticationError("No autenticado")
+        return super().set_todus_id(self._token, new_id, msg_id=msg_id)
 
     def get_users_info(self, phones: list[str]) -> list[dict]:
         """Obtiene información de múltiples usuarios."""

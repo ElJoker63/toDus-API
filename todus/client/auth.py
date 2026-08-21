@@ -76,10 +76,8 @@ class ToDusAuthMixin:
         password_bytes = password.encode()
         version_bytes = self.version_code.encode()
         data = (
-            bytes([0x0A, 0x0A])
+            bytes([0x0A, len(phone.encode())])
             + phone.encode()
-            + bytes([0x12, 0x96, 0x01])
-            + util.generate_token(150).encode()
             + bytes([0x12, len(password_bytes)])
             + password_bytes
             + bytes([0x1A, len(version_bytes)])
@@ -94,4 +92,10 @@ class ToDusAuthMixin:
         if resp.status_code == 403:
             raise AuthenticationError("Credenciales invalidas")
         resp.raise_for_status()
-        return "".join([c for c in resp.text if c in string.printable])
+        raw = resp.text
+        match = re.search(r"eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+", raw)
+        if match:
+            return match.group(0)
+        valid_chars = string.ascii_letters + string.digits + ".-_~+/"
+        clean_token = "".join(c for c in raw if c in valid_chars)
+        return clean_token.strip()

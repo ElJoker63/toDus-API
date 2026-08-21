@@ -18,7 +18,12 @@ from .errors import (
 from .util import normalize_phone, build_jid, generate_token, jwt_decode_payload, timestamp_ms, format_size
 from .parser import IncrementalParser, parse_tdack
 
-__version__ = "1.6.0"
+from .events import EventBus, EventFilter, PhoneFilter, GroupFilter, TextFilter, RegexFilter, CommandFilter
+from .cache import SQLiteCache, MessageQueue, MessageStatus
+from .rate_limiter import RateLimiter
+from .client.ws_transport import WebSocketTransport
+
+__version__ = "1.6.1"
 __all__ = [
     "ToDusClient",
     "ToDusClient2",
@@ -49,4 +54,16 @@ __all__ = [
     "format_size",
     "IncrementalParser",
     "parse_tdack",
+    "EventBus",
+    "EventFilter",
+    "PhoneFilter",
+    "GroupFilter",
+    "TextFilter",
+    "RegexFilter",
+    "CommandFilter",
+    "SQLiteCache",
+    "MessageQueue",
+    "MessageStatus",
+    "RateLimiter",
+    "WebSocketTransport",
 ]

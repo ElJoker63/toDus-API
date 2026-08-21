@@ -159,38 +159,52 @@ class ToDusMessageMixin:
             sock.send(msg.encode())
         return rid
 
+    def get_message_archive(self, token: str, since: str = "", before: str = "", limit: int = 50) -> str:
+        """Consulta el archivo de mensajes de ToDus (XMPP MAM)."""
+        qid = util.generate_token(8)
+        mam_stanza = stanza.mam_query(qid, since=since, before=before, limit=limit)
+        with self._xmpp_session(token) as sock:
+            sock.send(mam_stanza.encode())
+        return qid
+
     # --- Recepción de mensajes ---
 
-    def listen_messages(self, token: str, callback: Callable[[dict], None]) -> None:
-        while True:
+    def listen_messages(self, token: str, callback: Callable[[dict], None], stop_event: threading.Event | None = None) -> None:
+        backoff = 2.0
+        while stop_event is None or not stop_event.is_set():
             try:
-                with self._xmpp_session(token) as sock:
-                    self._listen_loop(sock, callback)
+                with self._xmpp_session(token, reuse=False) as sock:
+                    backoff = 2.0 # Reset tras conexión exitosa
+                    self._listen_loop(sock, callback, stop_event=stop_event)
             except TokenExpiredError:
                 raise
-            except (ConnectionLostError, OSError, socket.error):
-                time.sleep(15)
+            except (ConnectionLostError, OSError, socket.error) as e:
+                if stop_event and stop_event.is_set():
+                    break
+                logger.warning(f"Conexión de recepción perdida ({e}). Reintentando en {backoff:.1f}s...")
+                time.sleep(backoff)
+                backoff = min(backoff * 2.0, 60.0)
 
-    def _listen_loop(self, sock, callback: Callable[[dict], None]) -> None:
-        stop_event = threading.Event()
+    def _listen_loop(self, sock, callback: Callable[[dict], None], stop_event: threading.Event | None = None) -> None:
+        loop_stop = stop_event or threading.Event()
         ping_id = util.generate_token(5)
         ka = threading.Thread(
             target=self._keepalive_worker,
-            args=(sock, stop_event, ping_id),
+            args=(sock, loop_stop, ping_id),
             daemon=True,
         )
         ka.start()
         self._xml_parser.reset()
 
         try:
-            while True:
+            while not loop_stop.is_set():
                 try:
                     response = self._recv_all(sock)
                 except OSError as e:
                     raise ConnectionLostError(e)
 
                 if response is None:
-                    raise ConnectionLostError("Servidor cerro conexion")
+                    raise ConnectionLostError("Servidor cerró conexión")
 
                 if response == "":
                     continue
@@ -198,6 +212,13 @@ class ToDusMessageMixin:
                 stanzas = self._xml_parser.feed(response)
 
                 for msg in stanzas:
+                    # Enriquecer mensajes de grupo automáticamente (#6)
+                    if msg.get("type") == "gc" and hasattr(self, "groups"):
+                        try:
+                            msg = self.groups.process_group_message(msg)
+                        except Exception:
+                            pass
+
                     is_content = (
                         msg.get("body")
                         or msg.get("url")
@@ -218,7 +239,6 @@ class ToDusMessageMixin:
                             except Exception:
                                 pass
                         
-                        # Enviar TDACK para confirmar recepción a nivel de protocolo ToDus
                         if msg_id:
                             try:
                                 ack = stanza.ack(msg_id)
@@ -235,7 +255,8 @@ class ToDusMessageMixin:
                         callback(msg)
 
         finally:
-            stop_event.set()
+            if stop_event is None:
+                loop_stop.set()
             self._xml_parser.reset()
 
     def _keepalive_worker(self, sock, stop: threading.Event, ping_id: str) -> None:

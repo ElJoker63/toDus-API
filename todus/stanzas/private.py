@@ -129,12 +129,13 @@ def contact_message(to: str, contact_id: str, contact_name: str, contact_phone: 
     """Stanza con contacto adjunto."""
     mid = msg_id or _generate_msg_id()
     name_esc = util.escape_xml(contact_name)
+    phone_esc = util.escape_xml(contact_phone)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
-        f"<contact xmlns='contact:n' i='{contact_id}' mi='{mid}' n='{name_esc}' num='{contact_phone}'/>"
+        f"<contact xmlns='contact:n' i='{contact_id}' mi='{mid}' n='{name_esc}' num='{phone_esc}'/>"
         f"<b/>"
         f"</m>"
     )
@@ -145,12 +146,13 @@ def sticker_message(to: str, sticker_id: str, sticker_name: str, sticker_pack: s
     mid = msg_id or _generate_msg_id()
     name_esc = util.escape_xml(sticker_name)
     pack_esc = util.escape_xml(sticker_pack)
+    hash_esc = util.escape_xml(sticker_hash)
     reply_xml = f"<reply xmlns='reply:n' mi='{reply_to}'/>" if reply_to else ""
     return (
         f"<m o='{to}' t='{msg_type}' i='{mid}' xmlns='jc'>"
         f"<k xmlns='x8'/>"
         f"{reply_xml}"
-        f"<sticker xmlns='sticker:n' i='{sticker_id}' mi='{mid}' n='{name_esc}' f='{pack_esc}' url='' s='0' h='{sticker_hash}' json=''/>"
+        f"<sticker xmlns='sticker:n' i='{sticker_id}' mi='{mid}' n='{name_esc}' f='{pack_esc}' url='' s='0' h='{hash_esc}' json=''/>"
         f"<b/>"
         f"</m>"
     )
