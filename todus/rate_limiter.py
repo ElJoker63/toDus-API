@@ -20,11 +20,17 @@ class RateLimiter:
             self.min_interval = 1.0 / max_per_second if max_per_second > 0 else 0.0
 
     def wait(self) -> None:
-        """Bloquea si es necesario hasta que haya transcurrido el intervalo mínimo."""
+        """Reserva slot bajo lock y espera fuera del lock el intervalo mínimo."""
         with self._lock:
+            if self.min_interval <= 0:
+                return
             now = time.time()
-            elapsed = now - self.last_send
-            if elapsed < self.min_interval:
-                sleep_time = self.min_interval - elapsed
-                time.sleep(sleep_time)
-            self.last_send = time.time()
+            next_allowed = self.last_send + self.min_interval
+            if next_allowed > now:
+                sleep_time = next_allowed - now
+                self.last_send = next_allowed
+            else:
+                sleep_time = 0.0
+                self.last_send = now
+        if sleep_time > 0:
+            time.sleep(sleep_time)

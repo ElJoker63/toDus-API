@@ -5,6 +5,14 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
 y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
+## [1.6.2] - 2026-11-27
+### Performance & Concurrency
+- **Pipelining XMPP (`reserve_upload_urls`)**: Nuevo método en `ToDusFileMixin` para reservar lotes de URLs de subida en un solo roundtrip sobre el socket persistente, eliminando esperas por chunk.
+- **Socket XMPP seguro ante concurrencia**: `ToDusClientBase._sock_lock` migrado a `threading.RLock` protegiendo la sesión persistente completa durante `reuse=True`, además de activar `TCP_NODELAY` y `SO_KEEPALIVE`.
+- **RateLimiter sin bloqueo mutuo**: `RateLimiter.wait()` reserva el intervalo bajo lock y duerme fuera del lock; `ToDusClientBase` acepta `rate_limit` (default `8.0/s`) y `pool_size` (default `32`) configurables con `HTTPAdapter` keep-alive.
+- **Streaming desde disco y descargas más rápidas**: Nuevos métodos `upload_file_path()` y `upload_to_presigned_url()` con lectura en bloques de 1 MB (`UPLOAD_CHUNK_SIZE`) sin cargar en RAM, y descargas en bloques de 512 KB (`DOWNLOAD_CHUNK_SIZE`).
+- **Modo ligero en `ToDusClient2`**: Nuevo parámetro `use_cache: bool = True` para omitir inicialización de SQLite en clientes efímeros o workers.
+
 ## [1.6.1] - 2026-08-20
 ### Fixed
 - 🔴 **EventBus JID filter**: `PhoneFilter` normaliza y extrae el número de teléfono del JID completo (`5312345678@im.todus.cu/resource`) eliminando dominio y recurso.

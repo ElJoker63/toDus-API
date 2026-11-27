@@ -23,7 +23,7 @@ from .cache import SQLiteCache, MessageQueue, MessageStatus
 from .rate_limiter import RateLimiter
 from .client.ws_transport import WebSocketTransport
 
-__version__ = "1.6.1"
+__version__ = "1.6.2"
 __all__ = [
     "ToDusClient",
     "ToDusClient2",

@@ -49,20 +49,35 @@ class ToDusClient(
 class ToDusClient2(ToDusClient):
     """Cliente con persistencia de credenciales, soporte para grupos y auto-detección de destino."""
 
-    def __init__(self, phone_number: str, password: str = "", proxy: str | None = None, db_path: str = "todus_cache.db", **kwargs) -> None:
+    def __init__(
+        self,
+        phone_number: str,
+        password: str = "",
+        proxy: str | None = None,
+        db_path: str = "todus_cache.db",
+        use_cache: bool = True,
+        **kwargs,
+    ) -> None:
         super().__init__(proxy=proxy, **kwargs)
         self.phone_number = util.normalize_phone(phone_number) if phone_number else ""
         self.password = (password or "").strip()
         self._token = ""
         self._group_client = None
-        from ..cache import SQLiteCache, MessageQueue
-        from ..events import EventBus
-        self.cache = SQLiteCache(db_path=db_path)
-        self.queue = MessageQueue(db=self.cache, client=self)
-        self.bus = EventBus()
-        self._joined_groups: set[str] = {
-            g["group_id"] for g in self.cache.get_joined_groups()
-        }
+        self._db_path = db_path
+        if use_cache:
+            from ..cache import SQLiteCache, MessageQueue
+            from ..events import EventBus
+            self.cache = SQLiteCache(db_path=db_path)
+            self.queue = MessageQueue(db=self.cache, client=self)
+            self.bus = EventBus()
+            self._joined_groups: set[str] = {
+                g["group_id"] for g in self.cache.get_joined_groups()
+            }
+        else:
+            self.cache = None
+            self.queue = None
+            self.bus = None
+            self._joined_groups = set()
 
     @property
     def token(self) -> str:
